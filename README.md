@@ -35,9 +35,9 @@ npm install # or pnpm install
 Para hablar con el agente!:
 > **_NOTE:_** El prompt debe ir entre comillas dobles `""`
 ```bash
-npm start "Prompt"
+npm run chat
 # or
-pnpm start "Prompt"
+pnpm chat
 ```
 
 ## Tecnologias usadas

@@ -176,3 +176,5 @@ dist
 .env
 
 db.json 
+results.json
+package-lock.json
