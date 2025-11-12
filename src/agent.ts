@@ -8,7 +8,6 @@
 import { runLLM } from "./llm";
 import { addMessage, getMessages, saveToolResponse } from "./memory";
 import { runTool } from "./toolRunner";
-// import { logMessage, showLoader } from "./ui";  // ya no imprimimos desde aquí
 import { showLoader } from "./ui";
 
 const DEBUG = process.env.DEBUG_SPIDERQ === '1';

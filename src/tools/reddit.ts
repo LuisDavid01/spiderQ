@@ -7,7 +7,7 @@ export const redditToolDefinition = {
 	parameters: z
 		.object({})
 		.describe(
-			'Use this tool to get the latest posts from Reddit. It will return a JSON object with the title, link, subreddit, author, and upvotes of each post.'
+			'Use this tool to get useful reddit post about cibersecutiry, it is helpful. It will return a JSON object with the title, link, subreddit, author, and upvotes of each post.'
 		),
 }
 
