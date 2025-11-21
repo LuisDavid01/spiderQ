@@ -5,9 +5,9 @@
 
 ## Funcionalidades
 
-- [ ] Agente conversacional con especializacion en pentest web
-- [ ] Herramientas de web crawling
-- [ ] Genera reportes de enpoints encontrados
+- [x] Agente conversacional con especializacion en pentest web
+- [x] Herramientas de web crawling
+- [x] Genera reportes de enpoints encontrados ???
 
 
 ## Instrucciones de setup
@@ -39,7 +39,11 @@ npm run chat
 # or
 pnpm chat
 ```
-
+## Scripts de utilidad
+```bash
+npm run db:clean # Limpia la base de datos
+# or pnpm db:clean
+```
 ## Tecnologias usadas
 - [OpenAI](https://openai.com) - Inicialmente modelos de lenguaje (gpt-5-nano)
 - [typescript](https://www.typescriptlang.org/) - Lenguaje de programacion
