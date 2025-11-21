@@ -40,3 +40,8 @@ export interface Experiment {
 export interface Results {
   experiments: Experiment[]
 }
+
+export interface Pages {
+  [key: string]: number;
+}
+ 

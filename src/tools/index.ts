@@ -1,3 +1,4 @@
+import { crawlerToolDefinition } from "./crawler";
 import { generateImageToolDefinition } from "./genImage";
 import { redditToolDefinition } from "./reddit";
 
@@ -6,4 +7,5 @@ import { redditToolDefinition } from "./reddit";
 export const tools = [
 	generateImageToolDefinition,
 	redditToolDefinition,
+	crawlerToolDefinition,
 ]
