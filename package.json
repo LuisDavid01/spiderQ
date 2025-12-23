@@ -1,43 +1,45 @@
 {
-	"name": "agents",
-	"module": "index.ts",
-	"type": "module",
-	"scripts": {
-		"dev": "tsx src/cli/index.ts",
-		"chat": "tsx src/cli/index.ts chat",
-		"dashboard": "cd dashboard && (pnpm run dev || npm run dev)",
-		"eval": "npx tsx evals/run.ts",
-		"db:clean": "tsx src/utils_scripts/cleanDB.ts"
-	},
-	"overrides": {
-		"whatwg-url": "13.0.0"
-	},
-	"devDependencies": {
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0"
-	},
-	"dependencies": {
-		"@toon-format/toon": "^1.2.0",
-		"@types/jsdom": "^27.0.0",
-		"autoevals": "^0.0.101",
-		"boxen": "^8.0.1",
-		"chalk": "^5.6.2",
-		"commander": "^14.0.2",
-		"dotenv": "^16.6.1",
-		"figlet": "^1.9.3",
-		"got": "^14.4.4",
-		"gradient-string": "^3.0.0",
-		"jsdom": "^27.2.0",
-		"log-update": "^7.0.1",
-		"lowdb": "^7.0.1",
-		"node-fetch": "^3.3.2",
-		"openai": "^4.70.3",
-		"ora": "^8.2.0",
-		"terminal-image": "^3.0.0",
-		"tsx": "^4.19.2",
-		"uuid": "^11.0.2",
-		"zod": "^3.23.8"
-	}
+  "name": "agents",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/cli/index.ts",
+    "chat": "tsx src/cli/index.ts chat",
+    "dashboard": "cd dashboard && (pnpm run dev || npm run dev)",
+    "eval": "npx tsx evals/run.ts",
+    "db:clean": "tsx src/utils_scripts/cleanDB.ts",
+    "test": "vitest"
+  },
+  "overrides": {
+    "whatwg-url": "13.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@toon-format/toon": "^1.2.0",
+    "autoevals": "^0.0.101",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "dotenv": "^16.6.1",
+    "figlet": "^1.9.3",
+    "got": "^14.4.4",
+    "gradient-string": "^3.0.0",
+    "linkedom": "^0.18.12",
+    "log-update": "^7.0.1",
+    "lowdb": "^7.0.1",
+    "openai": "^4.70.3",
+    "ora": "^8.2.0",
+    "terminal-image": "^3.0.0",
+    "tsx": "^4.19.2",
+    "uuid": "^11.0.2",
+    "zod": "^3.23.8"
+  }
 }

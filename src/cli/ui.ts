@@ -13,7 +13,7 @@ import boxen from 'boxen';
 // Banner de bienvenida
 export function showWelcome() {
   // Figlet + gradiente para el título
-  const title = gradient.mind(
+  const title = gradient.vice(
     figlet.textSync('SPIDERQ', { horizontalLayout: 'fitted' })
   );
   console.log(title);

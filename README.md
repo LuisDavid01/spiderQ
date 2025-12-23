@@ -5,9 +5,9 @@
 
 ## Funcionalidades
 
-- [x] Agente conversacional con especializacion en pentest web
-- [x] Herramientas de web crawling
-- [x] Genera reportes de enpoints encontrados ???
+- Agente conversacional con especializacion en pentest web
+- Herramienta de web crawling
+- Genera reportes de enpoints encontrados
 
 
 ## Instrucciones de setup
@@ -33,7 +33,6 @@ npm install # or pnpm install
 ```
 
 Para hablar con el agente!:
-> **_NOTE:_** El prompt debe ir entre comillas dobles `""`
 ```bash
 npm run chat
 # or
