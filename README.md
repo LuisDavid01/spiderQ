@@ -34,14 +34,24 @@ npm install # or pnpm install
 
 Para hablar con el agente!:
 ```bash
-npm run chat
-# or
 pnpm chat
+# or
+npm run chat
 ```
 ## Scripts de utilidad
 ```bash
-npm run db:clean # Limpia la base de datos
-# or pnpm db:clean
+pnpm db:clean # Limpia la base de datos
+# or npm run db:clean
+
+pnpm eval <args> # evaluaciones al LLM
+# or npm run eval
+
+pnpm dashboard # Visualizar evaluaciones
+# or npm run dashboard
+
+pnpm test # Ejecuta tests unitarios
+# or npm run test
+
 ```
 ## Tecnologias usadas
 - [OpenAI](https://openai.com) - Inicialmente modelos de lenguaje (gpt-5-nano)
