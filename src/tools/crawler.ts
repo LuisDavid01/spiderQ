@@ -1,9 +1,7 @@
 import { z } from 'zod'
 import type { Pages, ToolFn } from '../../types'
-import fetch from 'node-fetch'
-import { JSDOM } from 'jsdom'
 import { encode } from '@toon-format/toon'
-
+import {parseHTML} from 'linkedom'
 
 export const crawlerToolDefinition = {
 	name: 'crawler',
@@ -33,7 +31,12 @@ export const crawler: ToolFn<Args, string> = async ({
 	return encode(respJson)
 }
 
-
+/*
+ * Todo: logear errores en db o archivo log local
+ *
+ *
+ *
+*/
 async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 	const baseUrlObj = new URL(baseURL)
 	const currUrlObj = new URL(currentURL)
@@ -50,20 +53,19 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 	}
 
 	pages[normalizedCurrentUrl] = 1
-	console.log('currently crawling: ', currentURL)
 
 
 	try {
 		const resp = await fetch(currentURL)
 		// si la pagina no es accesible o da error la saltamos
 		if (resp.status > 399) {
-			console.log(`Error un fetch with status code: ${resp.status} on page: ${currentURL}`)
+			
 			return pages
 		}
 		// si la pagina no es un html la saltamos
 		const contentType = resp.headers.get('content-type')
 		if (!contentType || !contentType.includes("text/html")) {
-			console.log(`Content type: ${contentType} non valid on page: ${currentURL}`)
+			//log error
 			return pages
 
 		}
@@ -79,9 +81,9 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 		}
 	} catch (err) {
 		if (err instanceof Error) {
-			console.log(`Error fetching the URL: ${err.message}, on page ${currentURL}`);
+			//console.log(`Error fetching the URL: ${err.message}, on page ${currentURL}`);
 		} else {
-			console.log(`Unknown error occurred on page ${currentURL}`);
+			//console.log(`Unknown error occurred on page ${currentURL}`);
 		}
 	}
 	// retornamos el objeto con todas las url encontradas
@@ -89,10 +91,10 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 }
 
 // Extrae los hipervinculos de un cuerpo HTML
-function urlFromHTML(htmlBody: string, baseURL: string) {
+export function urlFromHTML(htmlBody: string, baseURL: string) {
 	const urls = []
-	const dom = new JSDOM(htmlBody)
-	const links = dom.window.document.querySelectorAll('a')
+	const {document} = parseHTML(htmlBody)
+	const links = document.querySelectorAll('a')
 	for (const link of links) {
 		// validamos si es  una url relativa
 
@@ -101,7 +103,7 @@ function urlFromHTML(htmlBody: string, baseURL: string) {
 				const urlObj = new URL(`${baseURL}${link.href}`)
 				urls.push(urlObj.href)
 			} catch (error) {
-				console.log(error)
+				//console.log(error)
 			}
 		} else {
 			// agregamos la url completa
@@ -109,14 +111,14 @@ function urlFromHTML(htmlBody: string, baseURL: string) {
 				const urlObj = new URL(link.href)
 				urls.push(urlObj.href)
 			} catch (error) {
-				console.log(error)
+				//console.log(error)
 			}
 		}
 	}
 	return urls
 }
 
-function normalizeURL(url: string): string {
+export function normalizeURL(url: string): string {
 	const urlObj = new URL(url)
 	const hostPath = `${urlObj.hostname}${urlObj.pathname}`
 

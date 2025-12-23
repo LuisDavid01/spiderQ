@@ -26,8 +26,7 @@ function requestUserInput(query: string): Promise<string> {
 
   // Ctrl+C en medio de la pregunta(Solo HINT)
   rl.on('SIGINT', () => {
-	   output.write('\nHasta luego 👋\n');
-       process.exit(0);
+	   output.write('\nEscribe "exit" o "salir" para terminar.\n');
       });
 
   return new Promise((resolve) => {

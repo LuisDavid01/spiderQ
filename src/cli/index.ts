@@ -38,25 +38,13 @@ program
 
 program
   .command('chat')
-  .description('Iniciar chat interactivo (tipo ChatGPT/Gemini)')
+  .description('Iniciar chat interactivo')
   .option('-q, --question <text>', 'Lanzar una primera pregunta y seguir en modo interactivo')
   .action((opts) => {
     // Se retorna la promesa para que Commander no cierre el proceso
     return (async () => {
       await cleanDbIfNeeded();      // limpia/compacta db.json antes de arrancar
       return chatLoop(opts.question); // el loop queda funcionando hasta exit / Ctrl+C
-    })();
-  });
-
-program
-  .command('spider')
-  .description('Demo rápida de descubrimiento de subdirectorios (mock)')
-  .argument('<url>', 'URL objetivo (ej: https://example.com)')
-  .action((url: string) => {
-    // Retornamos la promesa por coherencia
-    return (async () => {
-      await cleanDbIfNeeded();
-      return spiderDemo(url);
     })();
   });
 
