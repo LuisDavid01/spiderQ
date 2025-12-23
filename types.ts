@@ -41,7 +41,13 @@ export interface Results {
   experiments: Experiment[]
 }
 
-export interface Pages {
-  [key: string]: number;
+interface PageData {
+	indexing: number
+	url: string,
+	method: string,
 }
- 
+export interface Pages {
+  [key: string]: PageData;
+}
+
+

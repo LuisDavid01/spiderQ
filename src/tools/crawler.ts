@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import type { Pages, ToolFn } from '../../types'
 import { encode } from '@toon-format/toon'
-import {parseHTML} from 'linkedom'
+import { parseHTML } from 'linkedom'
+import { logErrorLocal } from '../utils/logs'
 
 export const crawlerToolDefinition = {
 	name: 'crawler',
@@ -47,32 +48,35 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 
 	// contamos las veces que visitamos una pagina
 	const normalizedCurrentUrl = normalizeURL(currentURL)
-	if (pages[normalizedCurrentUrl] > 0) {
-		pages[normalizedCurrentUrl]++
+	if (pages[normalizedCurrentUrl]) {
+		pages[normalizedCurrentUrl].indexing++
 		return pages
 	}
 
-	pages[normalizedCurrentUrl] = 1
+	pages[normalizedCurrentUrl] = {
+		indexing: 1,
+		url: currentURL,
+		method: 'GET',
+	}
 
 
 	try {
 		const resp = await fetch(currentURL)
 		// si la pagina no es accesible o da error la saltamos
 		if (resp.status > 399) {
-			
 			return pages
 		}
 		// si la pagina no es un html la saltamos
 		const contentType = resp.headers.get('content-type')
 		if (!contentType || !contentType.includes("text/html")) {
-			//log error
 			return pages
 
 		}
 
+
 		const htmlBody = await resp.text()
 		// obtenemos las url de la pagina actual
-		const nextUrls = urlFromHTML(htmlBody, baseURL)
+		const nextUrls = await urlFromHTML(htmlBody, baseURL)
 
 		for (const nextUrl of nextUrls) {
 			// por cada pagina buscamos las url recursivamente
@@ -81,9 +85,7 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 		}
 	} catch (err) {
 		if (err instanceof Error) {
-			//console.log(`Error fetching the URL: ${err.message}, on page ${currentURL}`);
 		} else {
-			//console.log(`Unknown error occurred on page ${currentURL}`);
 		}
 	}
 	// retornamos el objeto con todas las url encontradas
@@ -91,9 +93,9 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 }
 
 // Extrae los hipervinculos de un cuerpo HTML
-export function urlFromHTML(htmlBody: string, baseURL: string) {
+export async function urlFromHTML(htmlBody: string, baseURL: string) {
 	const urls = []
-	const {document} = parseHTML(htmlBody)
+	const { document } = parseHTML(htmlBody)
 	const links = document.querySelectorAll('a')
 	for (const link of links) {
 		// validamos si es  una url relativa
@@ -102,16 +104,24 @@ export function urlFromHTML(htmlBody: string, baseURL: string) {
 			try {
 				const urlObj = new URL(`${baseURL}${link.href}`)
 				urls.push(urlObj.href)
-			} catch (error) {
-				//console.log(error)
+			} catch (err) {
+				if (err instanceof Error) {
+					await logErrorLocal(`Error parsing url ${err.message}, stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
+				} else {
+					await logErrorLocal(`Unknown error parsing relative url`)
+				}
 			}
 		} else {
 			// agregamos la url completa
 			try {
 				const urlObj = new URL(link.href)
 				urls.push(urlObj.href)
-			} catch (error) {
-				//console.log(error)
+			} catch (err) {
+				if (err instanceof Error) {
+					await logErrorLocal(`Error parsing url ${err.message}, Stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
+				} else {
+					await logErrorLocal(`Unknown error parsing complete url`)
+				}
 			}
 		}
 	}
