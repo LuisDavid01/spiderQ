@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import type { ToolFn } from '../../types'
-import fetch from 'node-fetch'
 
 export const redditToolDefinition = {
 	name: 'reddit',
@@ -17,9 +16,8 @@ export const reddit: ToolFn<Args, string> = async ({
 	toolArgs,
 	userMessage,
 }) => {
-	const { data } = await fetch('https://www.reddit.com/r/cybersecurity/.json').then((res) =>
-		res.json()
-	)
+	const { data } = await fetch('https://www.reddit.com/r/cybersecurity/.json').then(res => res.json() as any);
+
 
 	const relevantInfo = data.children.map((child: any) => ({
 		title: child.data.title,

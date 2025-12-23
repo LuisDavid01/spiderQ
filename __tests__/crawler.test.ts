@@ -18,7 +18,7 @@ test('Capitals in URL', () => {
 test('HTTP', () => { 
 	expect(normalizeURL('http://google.com/path/')).toBe('google.com/path')
 })
-test('Get urls from html', () => {
+test('Get urls from html', async () => {
 	const inputHTML = `
 	<html>
 		<body>
@@ -29,10 +29,10 @@ test('Get urls from html', () => {
 	<//html>
 	`
 	const baseURL = 'https://luisdavid01.me'
-	expect(urlFromHTML(inputHTML, baseURL)).toEqual(['https://luisdavid01.me/path/'])
+	expect(await urlFromHTML(inputHTML, baseURL)).toEqual(['https://luisdavid01.me/path/'])
 
 })
-test('Absolute urls', () => {
+test('Absolute urls', async () => {
 	const inputHTML = `
 	<html>
 		<body>
@@ -43,12 +43,12 @@ test('Absolute urls', () => {
 	<//html>
 	`
 	const baseURL = 'https://luisdavid01.me'
-	expect(urlFromHTML(inputHTML, baseURL)).toEqual(['https://luisdavid01.me/path/'])
+	expect(await urlFromHTML(inputHTML, baseURL)).toEqual(['https://luisdavid01.me/path/'])
 
 })
 
 
-test('Absolute and relative urls', () => {
+test('Absolute and relative urls', async () => {
 	const inputHTML = `
 	<html>
 		<body>
@@ -62,14 +62,14 @@ test('Absolute and relative urls', () => {
 	<//html>
 	`
 	const baseURL = 'https://luisdavid01.me'
-	expect(urlFromHTML(inputHTML, baseURL)).toEqual([
+	expect(await urlFromHTML(inputHTML, baseURL)).toEqual([
 		'https://luisdavid01.me/path/',
 		'https://luisdavid01.me/blog/'
 	])
 
 })
 
-test('Invalid', () => {
+test('Invalid', async () => {
 	const inputHTML = `
 	<html>
 		<body>
@@ -81,6 +81,6 @@ test('Invalid', () => {
 	<//html>
 	`
 	const baseURL = 'https://luisdavid01.me'
-	expect(urlFromHTML(inputHTML, baseURL)).toEqual([])
+	expect(await urlFromHTML(inputHTML, baseURL)).toEqual([])
 
 }) 
