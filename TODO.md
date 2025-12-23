@@ -2,7 +2,7 @@
 
 ## deadline enero 22 2026
 
-- [ ] logs locales
+- [x] logs locales
 - [ ] Integrar openRouter
 - [ ] Cambiar modelo de LLM por ui
 - [ ] Guardar chats en db
