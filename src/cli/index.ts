@@ -15,6 +15,8 @@ import { showWelcome, printTip } from './ui.js';
 import { chatLoop } from './loop.js';
 import { spiderDemo } from './spiderDemo.js';
 import { cleanDbIfNeeded } from './maintenance.js';
+import { aimodel } from '../utils/loadEnv.js';
+import { logErrorLocal } from '../utils/logs.js';
 
 // Hooks de diagnóstico: si algo raro pasa, lo verás en consola.
 // Útiles en desarrollo; si molestan, simplemente coméntalos.
@@ -37,15 +39,19 @@ program
   .exitOverride();            // evita que Commander mate el proceso sin pedir permiso
 
 program
-  .command('chat')
-  .description('Iniciar chat interactivo')
-  .option('-q, --question <text>', 'Lanzar una primera pregunta y seguir en modo interactivo')
-  .action((opts) => {
-    // Se retorna la promesa para que Commander no cierre el proceso
+  .command('chat [aimodel]')
+  .description('Iniciar chat interactivo (opcional: especificar modelo de OpenRouter)')
+  .action((aimodel: string | undefined) => {
     return (async () => {
-      await cleanDbIfNeeded();      // limpia/compacta db.json antes de arrancar
-      return chatLoop(opts.question); // el loop queda funcionando hasta exit / Ctrl+C
-    })();
+      if (aimodel) {
+        console.log(chalk.green(`👾 Usando modelo: ${aimodel}`));
+      } else {
+		  process.exit(1);
+      }
+
+      await cleanDbIfNeeded();
+      await chatLoop(); 
+	})();
   });
 
 // Si no pasan subcomando, mostramos un mini “menú” con tips
@@ -64,7 +70,7 @@ if (!process.argv.slice(2).length) {
       { padding: 1, borderColor: 'cyan', borderStyle: 'round' }
     )
   );
-  printTip('Usa /spider URL para demo de subdirectorios durante el chat');
+  printTip(`currently using ${aimodel} model`);
 }
 
 // Se ejecuta parseAsync sin top-level await (evita warning)
@@ -73,6 +79,7 @@ void (async () => {
     await program.parseAsync(process.argv);
   } catch (err: any) {
     console.error(err?.message || err);
+	await logErrorLocal(err?.message || err);
     process.exitCode = 1; // deja el código de salida sin tumbar de golpe el proceso
   }
 })();

@@ -40,11 +40,9 @@ export const logMessage = (message: AIMessage) => {
   // Log assistant messages
   if (role === 'assistant') {
     // If has tool_calls, log function name
-    if ('tool_calls' in message && message.tool_calls) {
-      message.tool_calls.forEach((tool) => {
+    if ('toolCallId' in message && message.toolCallId) {
         console.log(`\n${color}[ASSISTANT]${reset}`)
-        console.log(`${tool.function.name}\n`)
-      })
+        console.log(`${message.toolCallId}\n`)
       return
     }
 

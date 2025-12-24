@@ -2,10 +2,11 @@ import type OpenAI from "openai"
 import { generateImage, generateImageToolDefinition } from "./tools/genImage"
 import { reddit, redditToolDefinition } from "./tools/reddit"
 import { crawler, crawlerToolDefinition } from "./tools/crawler"
+import type { ChatMessageToolCall } from "@openrouter/sdk/models"
 
 
 export const runTool = async (toolCall:
-	OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
+	ChatMessageToolCall,
 	userMessage: string
 ) => {
 	const input = {
