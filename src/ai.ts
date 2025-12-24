@@ -5,17 +5,19 @@
  *           (evitamos recrearla en cada import).
  */
 
-import 'dotenv/config';
 import OpenAI from 'openai';
+import dotenv from 'dotenv';
 
+dotenv.config();
 // Validación rápida: sin API key no se ejecuta nada
 if (!process.env.OPENAI_API_KEY) {
-  throw new Error('Falta OPENAI_API_KEY en .env o en variables de entorno.');
+	throw new Error('Falta OPENAI_API_KEY en .env o en variables de entorno.');
 }
 
 // Creamos una sola instancia y la compartimos
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!, // se toma del .env ya cargado
+	baseURL: 'https://openrouter.ai/api/v1',
+	apiKey: process.env.OPENROUTER_API_KEY,
 });
 
 // Exportes prácticos:

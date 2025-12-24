@@ -10,11 +10,12 @@ export const runLLM = async ({ messages, tools }: { messages: AIMessage[], tools
 	// las tools deben seguir un formato especifico
 	const formatedTools = tools.map(zodFunction)
 	const response = await openai.chat.completions.create({
-		model: 'gpt-5-nano',
-		messages: [{ role: 'system', content: systemPrompt }, ...messages],
-		tools: formatedTools,
-		tool_choice: 'auto',
-		parallel_tool_calls: false,
+		model: 'openai/gpt-oss-120b:free',
+		//messages: [{ role: 'system', content: systemPrompt }, ...messages],
+		messages: [...messages],
+		//tools: formatedTools,
+		//tool_choice: 'auto',
+		//parallel_tool_calls: false,
 	})
 
 	return response.choices[0].message
