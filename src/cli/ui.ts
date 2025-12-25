@@ -48,3 +48,4 @@ export const tags = {
   assistant: chalk.bold.magenta('SpiderQ'), // respuestas del asistente
   tool: chalk.bold.yellow('Tool')       // trazas de herramientas (si las muestras)
 };
+export const clear = () => process.stdout.write('\x1Bc');

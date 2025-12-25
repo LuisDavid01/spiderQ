@@ -38,7 +38,7 @@ function requestUserInput(query: string): Promise<string> {
 	});
 }
 
-export async function chatLoop(firstQuestion?: string): Promise<void> {
+export async function chatLoop(): Promise<void> {
 	// Si estamos en una TTY, se asegura de mantener stdin "despierto".
 	if (process.stdin.isTTY) process.stdin.resume();
 
@@ -46,12 +46,7 @@ export async function chatLoop(firstQuestion?: string): Promise<void> {
 
 	printTip('Escribe "exit" o "salir" para terminar.\n');
 
-	// Si el usuario pasó una primera pregunta por flag (-q), respóndela antes del loop.
-	if (firstQuestion && firstQuestion.trim()) {
-		const a1 = await runAgent({ userMessage: firstQuestion.trim(), tools });
-		output.write(`${tags.assistant}: ${a1}\n\n`);
-		await cleanDbIfNeeded();
-	}
+
 
 	// Loop principal del chat: se sale solo con "exit"/"salir"/"quit".
 	while (true) {
@@ -71,7 +66,7 @@ export async function chatLoop(firstQuestion?: string): Promise<void> {
 			const ans = await runAgent({ userMessage: q, tools });
 			output.write(`${tags.assistant}: ${ans}\n\n`);
 		} catch (err: any) {
-			await logErrorLocal(`Error parsing url ${err.message}, stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
+			await logErrorLocal(`Error en el loop del agente: ${err.message}, stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
 
 			output.write(`Error en el agente: ${err?.message || String(err)}\n`);
 		} finally {
