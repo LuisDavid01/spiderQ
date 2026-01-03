@@ -13,18 +13,18 @@ import boxen from 'boxen';
 
 import { showWelcome, printTip, clear } from './ui.js';
 import { chatLoop } from './loop.js';
-import { spiderDemo } from './spiderDemo.js';
 import { cleanDbIfNeeded } from './maintenance.js';
 import { selectAI } from './menu.js';
 import { ARGS } from '../utils/loadArgs.js';
 
 // Hooks de diagnóstico: si algo raro pasa, lo verás en consola.
 // Útiles en desarrollo; si molestan, simplemente coméntalos.
-process.on('beforeExit', (code) => console.log('[diag] beforeExit', code));
-process.on('exit', (code) => console.log('[diag] exit', code));
-process.on('uncaughtException', (err) => console.error('[diag] uncaughtException', err));
-process.on('unhandledRejection', (reason) => console.error('[diag] unhandledRejection', reason));
-
+if (process.env.NODE_ENV === 'development') {
+	process.on('beforeExit', (code) => console.log('[diag] beforeExit', code));
+	process.on('exit', (code) => console.log('[diag] exit', code));
+	process.on('uncaughtException', (err) => console.error('[diag] uncaughtException', err));
+	process.on('unhandledRejection', (reason) => console.error('[diag] unhandledRejection', reason));
+}
 const program = new Command();
 
 // Banner inicial
@@ -40,31 +40,31 @@ program
 
 
 program
-  .command('chat [provider] [aimodel]')
-  .description('Iniciar chat interactivo')
-  .action(async (provider, aimodel: string | undefined) => {
+	.command('chat [provider] [aimodel]')
+	.description('Iniciar chat interactivo')
+	.action(async (provider, aimodel: string | undefined) => {
 
-    if (provider && aimodel) {
-      ARGS.provider = provider;
-      ARGS.model = aimodel;
-    } else {
-      const selection = await selectAI();
-      ARGS.provider = selection.provider;
-      ARGS.model = selection.model;
-      clear();
-    }
+		if (provider && aimodel) {
+			ARGS.provider = provider;
+			ARGS.model = aimodel;
+		} else {
+			const selection = await selectAI();
+			ARGS.provider = selection.provider;
+			ARGS.model = selection.model;
+			clear();
+		}
 
-    showWelcome();
+		showWelcome();
 
-    console.log(
-      chalk.green(
-        `👾 Usando modelo: ${ARGS.model} del proveedor: ${ARGS.provider}`
-      )
-    );
+		console.log(
+			chalk.green(
+				`👾 Usando modelo: ${ARGS.model} del proveedor: ${ARGS.provider}`
+			)
+		);
 
-    await cleanDbIfNeeded();
-    await chatLoop();
-  });
+		await cleanDbIfNeeded();
+		await chatLoop();
+	});
 // Si no pasan subcomando, mostramos un mini “menú” con tips
 if (!process.argv.slice(3).length) {
 	const title = gradient.atlas(

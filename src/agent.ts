@@ -9,6 +9,7 @@ import { runLLM } from "./llm";
 import { addMessage, getMessages, saveToolResponse } from "./memory";
 import { runTool } from "./toolRunner";
 import { showLoader } from "./ui";
+import { ARGS } from "./utils/loadArgs";
 
 const DEBUG = process.env.DEBUG_SPIDERQ === '1';
 
@@ -20,7 +21,7 @@ type RunAgentInput = {
 export const runAgent = async ({ userMessage, tools }: RunAgentInput): Promise<string> => {
   await addMessage([{ role: 'user', content: userMessage }]);
 
-  const loader = showLoader('Im thinking really hard rn.......😒😒😒\n');
+  const loader = showLoader(`${ARGS.model} is thinking really hard rn.......😒😒😒\n`);
 
   while (true) {
     const context = await getMessages();

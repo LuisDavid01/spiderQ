@@ -17,7 +17,7 @@ recomiendo usar [pnpm](https://pnpm.io/) aunque tambien pueden usar npm.
 ```bash
 git clone https://github.com/LuisDavid01/spiderQ
 cd spiderQ
-npm install # or pnpm install
+pnpm i # or npm install
 ```
 ## Configuracion
 
@@ -35,11 +35,14 @@ npm install # or pnpm install
 Para hablar con el agente!:
 ```bash
 pnpm chat
-# or
-npm run chat
+# or npm run chat
 ```
 ## Scripts de utilidad
 ```bash
+
+pnpm dev # corre el agente con logs
+# or npm run dev
+
 pnpm db:clean # Limpia la base de datos
 # or npm run db:clean
 

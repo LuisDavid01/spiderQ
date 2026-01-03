@@ -1,7 +1,8 @@
-
 export type Provider = 'openai' | 'openrouter';
-
+// pendiente reemplazar por leer un archivo de configuracion.
 export const ARGS = {
 	provider: 'openai' as Provider,
-	model: undefined as string | undefined,
+	model: 'gpt-5-nano' as string,
 }
+
+

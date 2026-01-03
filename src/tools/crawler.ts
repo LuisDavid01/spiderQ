@@ -55,7 +55,6 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 
 	pages[normalizedCurrentUrl] = {
 		indexing: 1,
-		url: currentURL,
 		method: 'GET',
 	}
 

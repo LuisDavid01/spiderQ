@@ -43,7 +43,6 @@ export interface Results {
 
 interface PageData {
 	indexing: number
-	url: string,
 	method: string,
 }
 export interface Pages {
