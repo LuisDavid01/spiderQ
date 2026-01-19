@@ -5,7 +5,7 @@
 - [x] logs locales
 - [x] Integrar openRouter
 - [x] Cambiar modelo de LLM por ui
-- [ ] Guardar chats en db
+- [x] Guardar chats en db
 - [ ] Cambiar chats en ui
 
 notes:
