@@ -7,15 +7,15 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import figlet from 'figlet';
-import gradient from 'gradient-string';
-import boxen from 'boxen';
 
-import { showWelcome, printTip, clear } from './ui.js';
-import { chatLoop } from './loop.js';
-import { cleanDbIfNeeded } from './maintenance.js';
-import { selectAI } from './menu.js';
-import { ARGS } from '../utils/loadArgs.js';
+import { ReadlineManager } from './readline-manager';
+import { selectAI, saveConfig } from './menu';
+import { showWelcome } from './ui';
+import { cleanDbIfNeeded } from './maintenance';
+import { chatLoop } from './loop';
+import { loadConfig } from '../config/globalConfig';
+import { logErrorLocal } from '../utils/logs';
+
 
 // Hooks de diagnóstico: si algo raro pasa, lo verás en consola.
 // Útiles en desarrollo; si molestan, simplemente coméntalos.
@@ -25,6 +25,10 @@ if (process.env.NODE_ENV === 'development') {
 	process.on('uncaughtException', (err) => console.error('[diag] uncaughtException', err));
 	process.on('unhandledRejection', (reason) => console.error('[diag] unhandledRejection', reason));
 }
+
+// Inicializar el gestor de readline y asegurar cleanup al salir
+const readlineManager = ReadlineManager.getInstance();
+
 const program = new Command();
 
 // Banner inicial
@@ -40,49 +44,49 @@ program
 
 
 program
-	.command('chat [provider] [aimodel]')
+	.command('chat')
 	.description('Iniciar chat interactivo')
-	.action(async (provider, aimodel: string | undefined) => {
+	.action(async () => {
+		try {
+			// Intentar cargar configuración global
+			const CONFIG = loadConfig();
 
-		if (provider && aimodel) {
-			ARGS.provider = provider;
-			ARGS.model = aimodel;
-		} else {
-			const selection = await selectAI();
-			ARGS.provider = selection.provider;
-			ARGS.model = selection.model;
-			clear();
+			// Configuración cargada exitosamente
+			showWelcome();
+			console.log(
+				chalk.green(
+					`👾 Usando modelo: ${CONFIG.model} del proveedor: ${CONFIG.provider}`
+				)
+			);
+
+			await cleanDbIfNeeded();
+			await chatLoop();
+		} catch (error: any) {
+			if (error.message === 'NO_CONFIG') {
+				// No hay config.json → crearla primero
+				console.log(chalk.cyan('🔧 Configuración requerida'));
+				const config = await selectAI();
+				saveConfig(config);
+
+				// Reintentar carga
+				const CONFIG = loadConfig();
+				showWelcome();
+				console.log(
+					chalk.green(
+						`👾 Usando modelo: ${CONFIG.model} del proveedor: ${CONFIG.provider}`
+					)
+				);
+
+				await cleanDbIfNeeded();
+				await chatLoop();
+			} else {
+				// JSON malformado o inválido
+				console.error(chalk.red('❌ Error en config.json:'), error.message);
+				process.exit(1);
+			}
 		}
-
-		showWelcome();
-
-		console.log(
-			chalk.green(
-				`👾 Usando modelo: ${ARGS.model} del proveedor: ${ARGS.provider}`
-			)
-		);
-
-		await cleanDbIfNeeded();
-		await chatLoop();
 	});
-// Si no pasan subcomando, mostramos un mini “menú” con tips
-if (!process.argv.slice(3).length) {
-	const title = gradient.atlas(
-		figlet.textSync('SpiderQ', { horizontalLayout: 'fitted' })
-	);
-	console.log(title);
-	console.log(
-		boxen(
-			`${chalk.cyan('SpiderQ • CLI Pentest Assistant')}\n\n` +
-			`${chalk.bold('Comandos:')}\n` +
-			`  ${chalk.green('chat')}     Inicia el chat interactivo\n` +
-			`  ${chalk.green('spider')}   Demo: spider <url>\n\n` +
-			`${chalk.dim('Tip: usa  ')}${chalk.yellow('npm run chat')} ${chalk.dim('para entrar directo al chat')}`,
-			{ padding: 1, borderColor: 'cyan', borderStyle: 'round' }
-		)
-	);
-	printTip('Usa /spider URL para demo de subdirectorios durante el chat');
-}
+
 
 // Se ejecuta parseAsync sin top-level await (evita warning)
 void (async () => {
@@ -90,6 +94,7 @@ void (async () => {
 		await program.parseAsync(process.argv);
 	} catch (err: any) {
 		console.error(err?.message || err);
+		await logErrorLocal(`Error en el CLI: ${err.message}, stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
 		process.exitCode = 1; // deja el código de salida sin tumbar de golpe el proceso
 	}
 })();

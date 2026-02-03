@@ -46,17 +46,6 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 		return pages
 	}
 
-	// contamos las veces que visitamos una pagina
-	const normalizedCurrentUrl = normalizeURL(currentURL)
-	if (pages[normalizedCurrentUrl]) {
-		pages[normalizedCurrentUrl].indexing++
-		return pages
-	}
-
-	pages[normalizedCurrentUrl] = {
-		indexing: 1,
-		method: 'GET',
-	}
 
 
 	try {
@@ -71,6 +60,18 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 			return pages
 
 		}
+		// contamos las veces que visitamos una pagina
+		const normalizedCurrentUrl = normalizeURL(currentURL)
+		if (pages[normalizedCurrentUrl]) {
+			pages[normalizedCurrentUrl].indexing++
+			return pages
+		}
+
+		pages[normalizedCurrentUrl] = {
+			indexing: 1,
+			method: 'GET',
+		}
+
 
 
 		const htmlBody = await resp.text()

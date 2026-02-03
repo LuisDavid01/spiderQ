@@ -1,5 +1,5 @@
 {
-  "name": "agents",
+  "name": "spiderq-cli",
   "module": "index.ts",
   "type": "module",
   "scripts": {
@@ -35,11 +35,11 @@
     "linkedom": "^0.18.12",
     "log-update": "^7.0.1",
     "lowdb": "^7.0.1",
-    "openai": "^4.70.3",
+    "openai": "^4.104.0",
     "ora": "^8.2.0",
     "terminal-image": "^3.0.0",
     "tsx": "^4.19.2",
     "uuid": "^11.0.2",
-    "zod": "^3.23.8"
+    "zod": "^4.3.6"
   }
 }

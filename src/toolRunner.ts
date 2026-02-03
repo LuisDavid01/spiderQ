@@ -2,6 +2,7 @@ import type OpenAI from "openai"
 import { generateImage, generateImageToolDefinition } from "./tools/genImage"
 import { reddit, redditToolDefinition } from "./tools/reddit"
 import { crawler, crawlerToolDefinition } from "./tools/crawler"
+import { nmapFinder, nmapToolDefinition } from "./tools/nmap"
 
 
 export const runTool = async (toolCall:
@@ -22,6 +23,8 @@ export const runTool = async (toolCall:
 			return await reddit(input)
 		case crawlerToolDefinition.name:
 			return await crawler(input)
+		case nmapToolDefinition.name:
+			return await nmapFinder(input)
 		default:
 			return `Stop dont call this tool again ${toolCall.function.name}`
 	}

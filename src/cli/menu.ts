@@ -1,16 +1,13 @@
-import readline from 'node:readline';
 import chalk from 'chalk';
 import boxen from 'boxen';
 import gradient from 'gradient-string';
 import figlet from 'figlet';
+import fs from 'fs';
+import path from 'path';
+import { ReadlineManager } from './readline-manager.js';
+import type { SpiderQConfig } from '../config/globalConfig.js';
 
-const rl = readline.createInterface({
-	input: process.stdin,
-	output: process.stdout,
-});
-
-const ask = (q: string): Promise<string> =>
-	new Promise((res) => rl.question(q, res));
+const readlineManager = ReadlineManager.getInstance();
 
 export async function selectAI() {
 	console.clear();
@@ -28,7 +25,7 @@ export async function selectAI() {
 
 	let apikey = process.env.API_KEY
 	if (!apikey) {
-		const userapikey = await ask('Api key: ');
+		const userapikey = await readlineManager.askOnce('Api key: ');
 		if (userapikey.length <= 1) {
 			console.error(chalk.red.underline('\napi key cannot be empty\n'));
 			process.exit(1);
@@ -39,12 +36,11 @@ export async function selectAI() {
 		console.log(chalk.greenBright('api key validada\n'));
 	}
 
-
 	console.log(chalk.cyan('\nSelecciona proveedor:\n'));
 	console.log('  1) openai');
 	console.log('  2) openrouter');
 	console.log(chalk.bgBlack.red.underline('openrouter no tiene acceso a tools por el momento'))
-	const providerChoice = await ask('\n> ');
+	const providerChoice = await readlineManager.askOnce('\n> ');
 
 	let provider: 'openai' | 'openrouter';
 
@@ -83,7 +79,7 @@ export async function selectAI() {
 		console.log(`  ${i + 1}) ${m}`);
 	});
 
-	const modelChoice = await ask('\n> ');
+	const modelChoice = await readlineManager.askOnce('\n> ');
 	const index = Number(modelChoice) - 1;
 
 	if (!models[index]) {
@@ -91,11 +87,16 @@ export async function selectAI() {
 		process.exit(1);
 	}
 
-	rl.close();
-
 	return {
 		provider,
 		model: models[index],
-	};
+		apiKey: apikey!,
+		summaryModel: models[index]
+	} as SpiderQConfig;
 }
 
+export function saveConfig(config: SpiderQConfig): void {
+	const configPath = path.join(process.cwd(), 'config.json');
+	fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+	console.log(chalk.green('✅ config.json created successfully'));
+}

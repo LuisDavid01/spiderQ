@@ -1,47 +1,43 @@
 import type { AIMessage } from '../types'
-import { openai } from './ai'
-import { zodFunction } from 'openai/helpers/zod'
+import { getClient } from './ai'
+import { formatToolsForProvider } from './utils/toolSchema'
 import { systemPrompt } from './systemPrompt'
-import { ARGS } from './utils/loadArgs'
+import { loadConfig } from './config/globalConfig.js'
 
-const MODEL_CAPS = {
-	'gpt-5-nano': {
-		reasoning: ['low'],
-		tools: true,
-	},
-	'gpt-5-mini': {
-		reasoning: ['low', 'medium'],
-		tools: true,
-	},
-	'gpt-5': {
-		reasoning: ['low', 'medium', 'high'],
-		tools: true,
-	},
-} as const
 
-// Llama al LLM con el contexto y herramientas
+
+// Llama al LLM con el contexto y herramientas usando clientes específicos
 
 export const runLLM = async ({ messages, tools }: { messages: AIMessage[], tools: any[] }) => {
-	// las tools deben seguir un formato especifico
-	if (ARGS.provider === 'openrouter') {
-		const formatedTools = tools.map(zodFunction)
-		const response = await openai.chat.completions.create({
-			model: 'qwen/qwen3-coder:free',
-			messages: [{ role: 'system', content: systemPrompt }, ...messages],
-			//tools: formatedTools,
-			//tool_choice: 'auto',
-			//parallel_tool_calls: false,
-		})
+	const CONFIG = loadConfig();
+	// Obtener cliente específico del provider
+	const client = getClient(CONFIG.provider)
+	
+	// Formatear tools para el provider específico usando Zod v4 nativo
+	const formattedTools = formatToolsForProvider(tools, CONFIG.provider)
+	
+	// Configuración base de la solicitud
+	const baseRequest = {
+		model: CONFIG.model,
+		messages: [{ role: 'system' as const, content: systemPrompt }, ...messages],
+	}
+
+	// Configuración específica por provider
+	if (CONFIG.provider === 'openrouter') {
+		// OpenRouter con tools habilitados
+		const response = await client.chat.completions.create({
+			...baseRequest,
+			tools: formattedTools as any,
+			tool_choice: 'auto' as const,
+		} as any)
 
 		return response.choices[0].message
 	} else {
-		const formatedTools = tools.map(zodFunction)
-		const response = await openai.chat.completions.create({
-			model: ARGS.model,
-			messages: [{ role: 'system', content: systemPrompt }, ...messages],
-			tools: formatedTools,
-			tool_choice: 'auto',
-			parallel_tool_calls: false,
+		const response = await client.chat.completions.create({
+			...baseRequest,
+			tools: formattedTools,
+			tool_choice: 'auto' as const,
+			parallel_tool_calls: false ,
 			max_completion_tokens: 2048,
 		})	
 

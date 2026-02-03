@@ -1,17 +1,10 @@
-/**
- * Archivo: src/agent.ts
- * Qué es: el “cerebro” que conversa con el LLM y ejecuta tools cuando el modelo las pide.
- * Qué hace: agrega tu mensaje al historial, consulta al LLM, ejecuta la tool si corresponde
- *           y devuelve SOLO el texto final para imprimirlo en el CLI (sin dumps del historial).
- */
-
 import { runLLM } from "./llm";
 import { addMessage, getMessages, saveToolResponse } from "./memory";
 import { runTool } from "./toolRunner";
 import { showLoader } from "./ui";
-import { ARGS } from "./utils/loadArgs";
+import { loadConfig } from "./config/globalConfig.js";
+import { logErrorLocal } from "./utils/logs.js";
 
-const DEBUG = process.env.DEBUG_SPIDERQ === '1';
 
 type RunAgentInput = {
   userMessage: string;
@@ -21,19 +14,20 @@ type RunAgentInput = {
 export const runAgent = async ({ userMessage, tools }: RunAgentInput): Promise<string> => {
   await addMessage([{ role: 'user', content: userMessage }]);
 
-  const loader = showLoader(`${ARGS.model} is thinking really hard rn.......😒😒😒\n`);
+  const CONFIG = loadConfig();
+  const loader = showLoader(`${CONFIG.model} is thinking really hard rn.......😒😒😒\n`);
 
   while (true) {
     const context = await getMessages();
 
     const response = await runLLM({ messages: context, tools });
-
-    await addMessage([response]);
-
+	await logErrorLocal(`[DEBUG] response: ${JSON.stringify(response.content)}`)
+    
     if (response.content) {
-      loader.stop();
-
+      
+	  await addMessage([response]);
       const text = response.content 
+	  loader.stop();
       return text.trim();
     }
 
