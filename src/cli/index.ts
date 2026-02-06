@@ -11,7 +11,7 @@ import chalk from 'chalk';
 import { ReadlineManager } from './readline-manager';
 import { selectAI, saveConfig } from './menu';
 import { showWelcome } from './ui';
-import { cleanDbIfNeeded } from './maintenance';
+
 import { chatLoop } from './loop';
 import { loadConfig } from '../config/globalConfig';
 import { logErrorLocal } from '../utils/logs';
@@ -59,7 +59,6 @@ program
 				)
 			);
 
-			await cleanDbIfNeeded();
 			await chatLoop();
 		} catch (error: any) {
 			if (error.message === 'NO_CONFIG') {
@@ -76,8 +75,6 @@ program
 						`👾 Usando modelo: ${CONFIG.model} del proveedor: ${CONFIG.provider}`
 					)
 				);
-
-				await cleanDbIfNeeded();
 				await chatLoop();
 			} else {
 				// JSON malformado o inválido
