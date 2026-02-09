@@ -10,7 +10,6 @@ import { addMessage, getMessages, saveToolResponse } from "./memory";
 import { runTool } from "./toolRunner";
 import { showLoader } from "./ui";
 
-const DEBUG = process.env.DEBUG_SPIDERQ === '1';
 
 type RunAgentInput = {
   userMessage: string;
