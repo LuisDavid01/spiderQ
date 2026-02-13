@@ -11,6 +11,7 @@ import { stdin as input, stdout as output } from 'node:process';
 import { runAgent } from '../agent';
 import { tags, printTip } from './ui';
 import { tools } from '../tools/index';
+import { logErrorLocal } from '@/utils/logs';
 
 
 
@@ -59,6 +60,7 @@ export async function chatLoop(): Promise<void> {
       output.write(`${tags.assistant}: ${ans}\n\n`);
     } catch (err: any) {
       output.write(`Error en el agente: ${err?.message || String(err)}\n`);
+	  await logErrorLocal(`Error en el loop del agente: ${err.message}, stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
     }
   }
 }
