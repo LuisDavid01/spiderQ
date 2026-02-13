@@ -35,7 +35,7 @@
     "linkedom": "^0.18.12",
     "log-update": "^7.0.1",
     "lowdb": "^7.0.1",
-    "openai": "^4.70.3",
+    "openai": "^6.18.0",
     "ora": "^8.2.0",
     "terminal-image": "^3.0.0",
     "tsx": "^4.19.2",

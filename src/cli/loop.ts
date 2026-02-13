@@ -8,16 +8,12 @@
 import readline from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
 
-import { runAgent } from '../agent.js';
-import * as toolRegistry from '../tools/index.js';
-import { tags, printTip } from './ui.js';
-import { cleanDbIfNeeded } from './maintenance.js';
+import { runAgent } from '../agent';
+import { tags, printTip } from './ui';
+import { tools } from '../tools/index';
+import { logErrorLocal } from '@/utils/logs';
 
-// Junta las tools exportadas en src/tools/index.ts
-function collectTools() {
-  if (Array.isArray((toolRegistry as any).tools)) return (toolRegistry as any).tools;
-  return Object.values(toolRegistry).filter((v) => typeof v === 'function');
-}
+
 
 // Wrapper de readline.question para pedir una línea y resolver con el texto.
 // Cierra el readline al recibir la respuesta.
@@ -37,20 +33,13 @@ function requestUserInput(query: string): Promise<string> {
   });
 }
 
-export async function chatLoop(firstQuestion?: string): Promise<void> {
+export async function chatLoop(): Promise<void> {
   // Si estamos en una TTY, se asegura de mantener stdin "despierto".
   if (process.stdin.isTTY) process.stdin.resume();
 
-  const tools = collectTools();
-
   printTip('Escribe "exit" o "salir" para terminar.\n');
 
-  // Si el usuario pasó una primera pregunta por flag (-q), respóndela antes del loop.
-  if (firstQuestion && firstQuestion.trim()) {
-    const a1 = await runAgent({ userMessage: firstQuestion.trim(), tools });
-    output.write(`${tags.assistant}: ${a1}\n\n`);
-    await cleanDbIfNeeded();
-  }
+
 
   // Loop principal del chat: se sale solo con "exit"/"salir"/"quit".
   while (true) {
@@ -71,8 +60,7 @@ export async function chatLoop(firstQuestion?: string): Promise<void> {
       output.write(`${tags.assistant}: ${ans}\n\n`);
     } catch (err: any) {
       output.write(`Error en el agente: ${err?.message || String(err)}\n`);
-    } finally {
-      await cleanDbIfNeeded();
+	  await logErrorLocal(`Error en el loop del agente: ${err.message}, stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
     }
   }
 }

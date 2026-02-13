@@ -6,15 +6,10 @@
  */
 
 import { Command } from 'commander';
-import chalk from 'chalk';
-import figlet from 'figlet';
-import gradient from 'gradient-string';
-import boxen from 'boxen';
+import {  showWelcome } from './ui';
+import { chatLoop } from './loop';
 
-import { showWelcome, printTip } from './ui.js';
-import { chatLoop } from './loop.js';
-import { spiderDemo } from './spiderDemo.js';
-import { cleanDbIfNeeded } from './maintenance.js';
+
 
 // Hooks de diagnóstico: si algo raro pasa, lo verás en consola.
 // Útiles en desarrollo; si molestan, simplemente coméntalos.
@@ -22,6 +17,8 @@ process.on('beforeExit', (code) => console.log('[diag] beforeExit', code));
 process.on('exit',       (code) => console.log('[diag] exit', code));
 process.on('uncaughtException', (err) => console.error('[diag] uncaughtException', err));
 process.on('unhandledRejection', (reason) => console.error('[diag] unhandledRejection', reason));
+
+
 
 const program = new Command();
 
@@ -39,33 +36,14 @@ program
 program
   .command('chat')
   .description('Iniciar chat interactivo')
-  .option('-q, --question <text>', 'Lanzar una primera pregunta y seguir en modo interactivo')
-  .action((opts) => {
+  .action(() => {
     // Se retorna la promesa para que Commander no cierre el proceso
     return (async () => {
-      await cleanDbIfNeeded();      // limpia/compacta db.json antes de arrancar
-      return chatLoop(opts.question); // el loop queda funcionando hasta exit / Ctrl+C
+      return chatLoop(); // el loop queda funcionando hasta exit / Ctrl+C
     })();
   });
 
-// Si no pasan subcomando, mostramos un mini “menú” con tips
-if (!process.argv.slice(2).length) {
-  const title = gradient.atlas(
-    figlet.textSync('SpiderQ', { horizontalLayout: 'fitted' })
-  );
-  console.log(title);
-  console.log(
-    boxen(
-      `${chalk.cyan('SpiderQ • CLI Pentest Assistant')}\n\n` +
-        `${chalk.bold('Comandos:')}\n` +
-        `  ${chalk.green('chat')}     Inicia el chat interactivo\n` +
-        `  ${chalk.green('spider')}   Demo: spider <url>\n\n` +
-        `${chalk.dim('Tip: usa  ')}${chalk.yellow('npm run chat')} ${chalk.dim('para entrar directo al chat')}`,
-      { padding: 1, borderColor: 'cyan', borderStyle: 'round' }
-    )
-  );
-  printTip('Usa /spider URL para demo de subdirectorios durante el chat');
-}
+
 
 // Se ejecuta parseAsync sin top-level await (evita warning)
 void (async () => {
