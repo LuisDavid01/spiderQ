@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsx src/cli/index.ts",
+    "dev": "NODE_ENV=development tsx src/cli/index.ts chat",
     "chat": "tsx src/cli/index.ts chat",
     "dashboard": "cd dashboard && (pnpm run dev || npm run dev)",
     "eval": "npx tsx evals/run.ts",

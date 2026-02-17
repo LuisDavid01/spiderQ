@@ -48,7 +48,7 @@ export const addMessage = async (message: AIMessage[]) => {
 	db.data.messages.push(...message.map(addMetadata));
 
 	// cada 10 mensajes, actualiza un resumen de la conversación
-	if (db.data.messages.length > 10) {
+	if (db.data.messages.length % 10 === 0) {
 		const oldestMessage = db.data.messages.slice(0, 5).map(removeMetadata)
 		const summary = await summarizeMessages(oldestMessage)
 		db.data.summary = summary
