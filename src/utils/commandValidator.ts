@@ -1,4 +1,3 @@
-import { platform } from 'os'
 
 const ALLOWED_COMMANDS = ['-n nmap','nmap', 'grep', 'find']
 

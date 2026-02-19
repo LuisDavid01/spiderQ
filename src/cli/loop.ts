@@ -9,6 +9,7 @@ import readline from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
 
 import { runAgent } from '../agent';
+import { getAllMessages } from '../memory';
 import { tags, printTip } from './ui';
 import { tools } from '../tools/index';
 import { logErrorLocal } from '@/utils/logs';
@@ -34,8 +35,15 @@ function requestUserInput(query: string): Promise<string> {
 }
 
 export async function chatLoop(): Promise<void> {
-  // Si estamos en una TTY, se asegura de mantener stdin "despierto".
   if (process.stdin.isTTY) process.stdin.resume();
+
+  const historicalMessages = await getAllMessages();
+  for (const msg of historicalMessages) {
+    if (msg.role === 'tool' || !msg.content) continue;
+    const content = msg.content;
+    const prefix = msg.role === 'user' ? tags.user : tags.assistant;
+    output.write(`${prefix}: ${content}\n\n`);
+  }
 
   printTip('Escribe "exit" o "salir" para terminar.\n');
 
