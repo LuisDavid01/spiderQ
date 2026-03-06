@@ -32,12 +32,7 @@ export const crawler: ToolFn<Args, string> = async ({
 	return encode(respJson)
 }
 
-/*
- * Todo: logear errores en db o archivo log local
- *
- *
- *
-*/
+
 async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 	const baseUrlObj = new URL(baseURL)
 	const currUrlObj = new URL(currentURL)

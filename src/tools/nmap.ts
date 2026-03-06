@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { encode } from '@toon-format/toon'
 import { logErrorLocal } from '@/utils/logs'
 import { executeCommand } from '@/utils/commands'
+import {platform} from 'os';
 import type { ToolFn } from 'types'
 
 export const nmapToolDefinition = {
@@ -14,7 +15,7 @@ export const nmapToolDefinition = {
 					'commando parameters to run nmap'
 				),
 		})
-		.describe('this tool is used to get information about a website cannot use sudo or root options'),
+		.describe('this tool is used to get information about a website'),
 }
 
 type Args = z.infer<typeof nmapToolDefinition.parameters>
@@ -25,8 +26,9 @@ export const nmapFinder: ToolFn<Args, string> = async ({
 }) => {
 
 	const { commandParameters } = toolArgs
-
-	const result = await executeCommand(`nmap ${commandParameters}`)
+	
+	const baseCommand = platform() === 'win32' ? 'nmap.exe' : 'sudo -n nmap'
+	const result = await executeCommand(baseCommand, commandParameters, { timeout: 200000 })
 
 	if (!result.success) {
 		logErrorLocal(`[nmap] error: ${result.stderr}`)

@@ -1,4 +1,4 @@
-import { normalizeURL, urlFromHTML } from "../src/tools/crawler"
+import { normalizeURL, urlFromHTML } from '../tools/crawler'
 import { test, expect, describe } from 'vitest'
 test('normalizeURL', () => {
 	expect(normalizeURL('https://google.com/path')).toBe('google.com/path')

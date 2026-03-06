@@ -15,6 +15,7 @@ export type MessageWithMetadata = AIMessage & {
 type Data = {
 	messages: MessageWithMetadata[]
 	summary: string
+	sessionId: string
 }
 
 export const addMetadata = (message: AIMessage) => {
@@ -35,13 +36,30 @@ export const removeMetadata = (message: MessageWithMetadata) => {
 const defaultData: Data = {
 	messages: [],
 	summary: '',
+	sessionId: ``,
 }
 
 
 export const getDB = async () => {
 	const db = await JSONFilePreset<Data>('db.json', defaultData);
+	if (!db.data.sessionId) {
+		db.data.sessionId = `${Date.now()}${uuidv4()}`
+		await db.write()
+	}
+
 	return db
 }
+
+export const getMockDB = async () => {
+	const db = await JSONFilePreset<Data>('dbtest.json', defaultData);
+	if (!db.data.sessionId) {
+		db.data.sessionId = `mock-session`
+		await db.write()
+	}
+
+	return db
+}
+
 
 export const addMessage = async (message: AIMessage[]) => {
 	const db = await getDB()
@@ -89,4 +107,9 @@ export const saveToolResponse = async (
 export const getSummary = async () => {
 	const db = await getDB()
 	return db.data.summary
+}
+
+export const getSessionId = async () => {
+	const db = await getDB()
+	return db.data.sessionId
 }
