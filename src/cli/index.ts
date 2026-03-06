@@ -1,10 +1,3 @@
-/**
- * Archivo: src/cli/index.ts
- * Qué es: punto de entrada del CLI de SpiderQ.
- * Qué hace: pinta el banner bonito, registra comandos (chat y spider) con Commander,
- *           y arranca el flujo correcto. Se queda encendido hasta que se cierre el chat.
- */
-
 import { Command } from 'commander';
 import { showWelcome } from './ui';
 import { chatLoop } from './loop';

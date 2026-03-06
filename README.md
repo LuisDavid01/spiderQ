@@ -1,13 +1,15 @@
 # SpiderQ - Web Crawler AI Agent
 
-> **_NOTE:_** Este proyecto es un experimento y no se recomienda su uso **aun** en produccion.
+> **_NOTE:_** Este proyecto se encuentra en desarollo cualquier contribucion es bienvenida.
+
+Un agente conversacional que puede ser usado para encontrar vulnerabilidades en sitios web.
 
 
 ## Funcionalidades
 
 - Agente conversacional con especializacion en pentest web
 - Herramienta de web crawling
-- Genera reportes de enpoints encontrados
+- Herramienta de nmap
 
 
 ## Instrucciones de setup
