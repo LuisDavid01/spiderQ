@@ -6,11 +6,12 @@ async function cleanJsonDatabase() {
 	db.data = {
 		messages: [],
 		summary: "",
-		sessionId: `${Date.now()}${uuidv4()}`,
+		sessionId: '',
 	};
 	console.log("Cleaning json database...\n")
 	db.write();
 	console.log("Database cleaned!\n")
+	console.log("New session id: ", db.data.sessionId)
 
 
 

@@ -42,12 +42,24 @@ const defaultData: Data = {
 
 export const getDB = async () => {
 	const db = await JSONFilePreset<Data>('db.json', defaultData);
-	if (db.data.sessionId === '') {
+	if (!db.data.sessionId) {
 		db.data.sessionId = `${Date.now()}${uuidv4()}`
+		await db.write()
 	}
 
 	return db
 }
+
+export const getMockDB = async () => {
+	const db = await JSONFilePreset<Data>('dbtest.json', defaultData);
+	if (!db.data.sessionId) {
+		db.data.sessionId = `mock-session`
+		await db.write()
+	}
+
+	return db
+}
+
 
 export const addMessage = async (message: AIMessage[]) => {
 	const db = await getDB()

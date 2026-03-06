@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { encode } from '@toon-format/toon'
 import { logErrorLocal } from '../utils/logs'
-import fs from 'fs';
+import fs from 'fs/promises';
 import { platform, homedir } from 'os';
 import type { ToolFn } from 'types'
 import path from 'path';
@@ -22,24 +22,36 @@ export const CreateWordListToolDefinition = {
 
 type Args = z.infer<typeof CreateWordListToolDefinition.parameters>
 
-export const createWordList: ToolFn<Args, string> = async ({
+export const createWordListTool: ToolFn<Args, string> = async ({
 	toolArgs,
 	userMessage,
 }) => {
-	const { wordlistString } = toolArgs
-	const homeDirectory = homedir()
-	const sessionId = await getSessionId()
 
-	const pathDir = path.join(homeDirectory, 'spiderQ', 'wordlists')
-	fs.mkdirSync(pathDir, { recursive: true })
-	fs.writeFile(`${pathDir}/${sessionId}.txt`, wordlistString, (err) => {
-		if (err) {
-			logErrorLocal(`[wordlist] error: ${err}`)
-			const response = "No se pudo crear el archivo, por favor revisar los logs locales del usuario"
-			return response
-		}
-	})
-	const response = "archivo creado correctamente"
-	return response
+	const { wordlistString } = toolArgs
+
+	const sessionId = await getSessionId()
+	console.log(sessionId)
+	const result = await createWordListFromSessionId(wordlistString, sessionId)
+	return result
+
+
+}
+
+
+export async function createWordListFromSessionId(wordlist: string, sessionId: string) {
+
+	try {
+
+		const homeDirectory = homedir()
+		const pathDir = path.join(homeDirectory, 'spiderQ', 'wordlists')
+		await fs.mkdir(pathDir, { recursive: true })
+		await fs.writeFile(`${pathDir}/${sessionId}.txt`, wordlist)
+		return "archivo creado correctamente"
+
+	} catch (error) {
+		logErrorLocal(`[wordlist] error: ${error}`)
+		const response = "No se pudo crear el archivo, por favor revisar los logs locales del usuario"
+		return response
+	}
 
 }

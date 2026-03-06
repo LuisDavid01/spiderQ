@@ -1,16 +1,12 @@
 import { test, expect, describe } from 'vitest'
-import { createWordList } from '../tools/createWordlist'
+import { createWordListFromSessionId } from '../tools/createWordlist'
 
 describe('Create wordlist', () => {
 	test('Create wordlist', async () => {
-		const sampleWordlist = 'home\nprojects\nspiderQ\n'
-		const mockInput = {
-			userMessage: 'Create a wordlist',
-			toolArgs: {
-				wordlistString: sampleWordlist,
-			},
-		}
-		const result = await createWordList(mockInput)
+		const sampleWordlist = 'home\nprojects\nspiderQ\nen/\nes/\nblog/\nprimer-post\nes/blog/primer-post\n'
+		const sessionId = 'mock-session'
+		const result = await createWordListFromSessionId(sampleWordlist, sessionId)
 		expect(result).toBe('archivo creado correctamente')
 	})
 })
+
