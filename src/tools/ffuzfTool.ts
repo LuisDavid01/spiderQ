@@ -8,14 +8,14 @@ import { getSessionId } from '../memory';
 import path from 'path';
 import fs from 'fs/promises';
 
-export const fuffToolDefinition = {
-	name: 'nmapTool',
+export const ffufToolDefinition = {
+	name: 'ffufTool',
 	parameters: z
 		.object({
-			fuffOptions: z
+			ffufOptions: z
 				.string()
 				.describe(
-					'flags for fuff, do not include "-u" or "-w" option are already included'
+					'flags for ffuf, do not include "-u" or "-w" option are already included'
 				),
 			targetURL: z
 				.string()
@@ -26,18 +26,18 @@ export const fuffToolDefinition = {
 
 
 		})
-		.describe('this tool is used to get information about a website'),
+		.describe('use this tool to run ffuf'),
 }
 
-type Args = z.infer<typeof fuffToolDefinition.parameters>
+type Args = z.infer<typeof ffufToolDefinition.parameters>
 
-export const fuffFinder: ToolFn<Args, string> = async ({
+export const ffufFinder: ToolFn<Args, string> = async ({
 	toolArgs,
 	userMessage,
 }) => {
 
 
-	const { fuffOptions, targetURL } = toolArgs
+	const { ffufOptions, targetURL } = toolArgs
 	const homeDirectory = homedir()
 	const sessionId = await getSessionId()
 	console.log(sessionId)
@@ -46,32 +46,32 @@ export const fuffFinder: ToolFn<Args, string> = async ({
 	const outputDir = path.join(pathDir, `json_results`)
 
 	const baseCommand = `ffuf`
-	const commandParameters = `-u ${targetURL} -w ${pathDir}/${sessionId}.txt ${fuffOptions} -o ${outputDir}/${sessionId}.json `
+	const commandParameters = `-u ${targetURL} -w ${pathDir}/${sessionId}.txt ${ffufOptions} -o ${outputDir}/${sessionId}.json `
 
 
 	const result = await executeCommand(baseCommand, commandParameters, { timeout: 200000 })
 
 	if (!result.success) {
-		logErrorLocal(`[fuff] error: ${result.stderr}`)
+		logErrorLocal(`[ffuf] error: ${result.stderr}`)
 		const response = JSON.stringify(result.stderr)
 
 		return encode(response)
 	}
 
-	const data = await createFuffOutputFromId(sessionId, outputDir)
+	const data = await createFfufOutputFromId(sessionId, outputDir)
 
 	const usefulData = JSON.stringify(data)
 	return encode(usefulData)
 
 }
 
-export async function createFuffOutputFromId(sessionId: string, outputDir: string) {
+export async function createFfufOutputFromId(sessionId: string, outputDir: string) {
 	try {
 		const file = await fs.readFile(`${outputDir}/${sessionId}.json`, "utf8")
 		const data = JSON.parse(file)
 		return data.results
 	} catch (error) {
-		logErrorLocal(`[fuff] error: ${error}`)
+		logErrorLocal(`[ffuf] error: ${error}`)
 		const response = "No se pudo encontrar el archivo, por favor revisar los logs locales del usuario"
 		return response
 	}

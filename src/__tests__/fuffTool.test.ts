@@ -1,4 +1,4 @@
-import { createFuffOutputFromId } from '../tools/ffuzfTool'
+import { createFfufOutputFromId } from '../tools/ffuzfTool'
 import { executeCommand } from '../utils/commands'
 import { homedir } from 'os';
 import path from 'path';
@@ -21,7 +21,7 @@ describe('Fuff locate wordlist file', () => {
 		const commandResult = await executeCommand(baseCommand, commandParameters, { timeout: 200000 })
 		expect(commandResult.success).toBe(true)
 
-		const result = await createFuffOutputFromId(sessionId, outputDir)
+		const result = await createFfufOutputFromId(sessionId, outputDir)
 
 		expect(result.length).toBeGreaterThan(1)
 	})
@@ -37,7 +37,7 @@ describe('Fuff show error', () => {
 		const outputDir = path.join(pathDir, `json_results`)
 
 
-		const result = await createFuffOutputFromId(sessionId, outputDir)
+		const result = await createFfufOutputFromId(sessionId, outputDir)
 
 		expect(result).toBe("No se pudo encontrar el archivo, por favor revisar los logs locales del usuario")
 	})

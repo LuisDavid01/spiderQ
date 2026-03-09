@@ -1,6 +1,9 @@
 import type OpenAI from "openai"
 import { crawler, crawlerToolDefinition } from "./tools/crawler"
 import { nmapFinder, nmapToolDefinition } from "./tools/nmap"
+import { ffufFinder, ffufToolDefinition } from "./tools/ffuzfTool"
+import { lookupWhois, whoisToolDefinition } from "./tools/whoisTool"
+import { createWordList, createWordListToolDefinition } from "./tools/createWordlist"
 
 
 export const runTool = async (toolCall:
@@ -19,6 +22,12 @@ export const runTool = async (toolCall:
 			return await crawler(input)
 		case nmapToolDefinition.name:
 			return await nmapFinder(input)
+		case ffufToolDefinition.name:
+			return await ffufFinder(input)
+		case whoisToolDefinition.name:
+			return await lookupWhois(input)
+		case createWordListToolDefinition.name:
+			return await createWordList(input)
 		default:
 			return `Stop dont call this tool again ${toolCall.function.name}`
 	}
