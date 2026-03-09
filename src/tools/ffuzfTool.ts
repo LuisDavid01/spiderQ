@@ -15,7 +15,7 @@ export const ffufToolDefinition = {
 			ffufOptions: z
 				.string()
 				.describe(
-					'flags for ffuf, do not include "-u" or "-w" option are already included'
+					'flags for ffuf, do not include target url, wordlist path or output path here '
 				),
 			targetURL: z
 				.string()
@@ -26,7 +26,7 @@ export const ffufToolDefinition = {
 
 
 		})
-		.describe('use this tool to run ffuf'),
+		.describe('use this tool to run ffuf, the base command already specifies the path to the wordlist and the output path, specify the target url but do not include it on the options flags'),
 }
 
 type Args = z.infer<typeof ffufToolDefinition.parameters>
@@ -46,7 +46,7 @@ export const ffufFinder: ToolFn<Args, string> = async ({
 	const outputDir = path.join(pathDir, `json_results`)
 
 	const baseCommand = `ffuf`
-	const commandParameters = `-u ${targetURL} -w ${pathDir}/${sessionId}.txt ${ffufOptions} -o ${outputDir}/${sessionId}.json `
+	const commandParameters = `-u ${targetURL} -w ${pathDir}/${sessionId}.txt ${ffufOptions} -o ${outputDir}/${sessionId}.json`
 
 
 	const result = await executeCommand(baseCommand, commandParameters, { timeout: 200000 })

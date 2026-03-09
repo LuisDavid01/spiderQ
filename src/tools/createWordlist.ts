@@ -38,7 +38,7 @@ export const createWordList: ToolFn<Args, string> = async ({
 }
 
 
-export async function createWordListFromSessionId(wordlist: string, sessionId: string) {
+export async function createWordListFromSessionId(wordlist: string, sessionId: string | number) {
 
 	try {
 

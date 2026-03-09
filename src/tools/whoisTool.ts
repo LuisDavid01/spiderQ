@@ -35,7 +35,7 @@ export const lookupWhois: ToolFn<Args, string> = async ({
 	} 
 
 	const response = encode(result.stdout)
-	return JSON.stringify(response)
+	return response
 
 }
 
