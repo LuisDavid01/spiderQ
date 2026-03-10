@@ -1,66 +1,77 @@
 # SpiderQ - Web Crawler AI Agent
 
-> **_NOTE:_** Este proyecto es un experimento y no se recomienda su uso **aun** en produccion.
+> **Totalmente gratis - Corrélo localmente en tu máquina**
 
+Un agente conversacional especializado en pentest web que podés ejecutar gratis en tu computadora.
 
 ## Funcionalidades
 
-- Agente conversacional con especializacion en pentest web
-- Herramienta de web crawling
-- Genera reportes de enpoints encontrados
+-  **Agente conversacional** con especialización en pentest web
+-  **Crawler** - Extrae todos los enlaces de un sitio web recursivamente
+-  **Nmap** - Escaneo de puertos y servicios
+-  **CreateWordlist** - Genera wordlists para fuzzing
+-  **FFuf** - Fuzzing de directorios y archivos
+-  **Whois** - Información de dominios
 
+## Setup
 
-## Instrucciones de setup
-
-Se requiere **Node.js 20+**
-recomiendo usar [pnpm](https://pnpm.io/) aunque tambien pueden usar npm.
 ```bash
 git clone https://github.com/LuisDavid01/spiderQ
 cd spiderQ
-npm install # or pnpm install
-```
-## Configuracion
-
-- Crea un archivo `.env` en la raiz del proyecto.
-- Guiate del archivo `.env.example` para agregar las variables de entorno necesarias.
-- Necesitas crear un archivo `db.json` en la raiz del proyecto con el siguiente contenido:
-
-```json
-{
-   "messages":[]
-}
-
+npm install
+# o si preferís pnpm:
+pnpm install
 ```
 
-Para hablar con el agente!:
+## Configuración
+
+1. Crea un archivo `.env` en la raíz del proyecto:
+```bash
+cp .env.example .env
+```
+
+2. Agrega tu API key de OpenAI:
+```env
+OPENAI_API_KEY=sk-tu-api-key-aqui
+```
+
+3. Configurá la base de datos SQLite:
+```bash
+pnpm db:push
+```
+
+Listo! Ya podés hablar con el agente.
+
+## Cómo usarlo
+
 ```bash
 pnpm chat
-# or
-npm run chat
+# o en modo desarrollo
+pnpm dev
 ```
-## Scripts de utilidad
-```bash
-pnpm db:clean # Limpia la base de datos
-# or npm run db:clean
 
-pnpm eval <args> # evaluaciones al LLM
-# or npm run eval
+## Comandos disponibles
 
-pnpm dashboard # Visualizar evaluaciones
-# or npm run dashboard
+| Comando | Descripción |
+|---------|-------------|
+| `pnpm chat` | Iniciar conversación con el agente |
+| `pnpm dev` | Modo desarrollo con reinicio automático |
+| `pnpm db:push` | Crear/migrar tablas de SQLite |
+| `pnpm db:clean` | Limpiar toda la base de datos |
+| `pnpm db:generate` | Generar migración desde schema |
+| `pnpm db:migrate` | Ejecutar migraciones pendientes |
+| `pnpm test` | Ejecutar tests unitarios con Vitest |
+| `pnpm eval` | Correr evaluaciones del LLM |
+| `pnpm dashboard` | Visualizar resultados de evaluaciones |
 
-pnpm test # Ejecuta tests unitarios
-# or npm run test
+## Tecnologías
 
-```
-## Tecnologias usadas
-- [OpenAI](https://openai.com) - Inicialmente modelos de lenguaje (gpt-5-nano)
-- [typescript](https://www.typescriptlang.org/) - Lenguaje de programacion
+- [OpenAI](https://openai.com) - Modelos de lenguaje
+- [TypeScript](https://www.typescriptlang.org/) - Lenguaje
+- [Drizzle ORM](https://orm.drizzle.team/) - ORM para SQLite
+- [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) - Base de datos local
 
+## Recomendaciones
 
-### posibles problemas
-- Si hay un mensaje corrupto o hay errores por algun prompt eliminar el array `messages` en el archivo
-`db.json` y reiniciar el agente.
-
-### recomendaciones
-- Eliminar la base de datos es decir el array de `messages` constantemente para no quemar tokens.
+- Eliminá la base de datos periódicamente (`pnpm db:clean`) para no gastar tokens innecesarios
+- Si hay errores raros o mensajes corruptos, ejecutá `pnpm db:clean` y reiniciá el agente

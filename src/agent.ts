@@ -10,7 +10,6 @@ import { addMessage, getMessages, saveToolResponse } from "./memory";
 import { runTool } from "./toolRunner";
 import { showLoader } from "./ui";
 
-const DEBUG = process.env.DEBUG_SPIDERQ === '1';
 
 type RunAgentInput = {
   userMessage: string;
@@ -39,6 +38,11 @@ export const runAgent = async ({ userMessage, tools }: RunAgentInput): Promise<s
     if (response.tool_calls && response.tool_calls.length > 0) {
       const toolCall = response.tool_calls[0];
 
+	  if (toolCall.type != 'function') {
+		  loader.stop();
+		  return 'No pude generar una respuesta en este turno. Intenta reformular o vuelve a preguntar.';
+	  }
+
       loader.update(`calling tool 📲📶 ${toolCall.function.name}\n`);
 
       const toolResponse = await runTool(toolCall, userMessage);
@@ -48,7 +52,8 @@ export const runAgent = async ({ userMessage, tools }: RunAgentInput): Promise<s
       loader.update(`Tool already answer 😍 ${toolCall.function.name}\n`);
 
       continue;
-    }
+    
+	}
 
     loader.stop();
     return 'No pude generar una respuesta en este turno. Intenta reformular o vuelve a preguntar.';

@@ -32,12 +32,7 @@ export const crawler: ToolFn<Args, string> = async ({
 	return encode(respJson)
 }
 
-/*
- * Todo: logear errores en db o archivo log local
- *
- *
- *
-*/
+
 async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 	const baseUrlObj = new URL(baseURL)
 	const currUrlObj = new URL(currentURL)
@@ -81,7 +76,7 @@ async function crawlPage(baseURL: string, currentURL: string, pages: Pages) {
 		for (const nextUrl of nextUrls) {
 			// por cada pagina buscamos las url recursivamente
 			pages = await crawlPage(baseURL, nextUrl, pages)
-			delay(Math.random() * (3243 - 569) + 569)
+			delay(Math.random() * (3243 - 1000) + 569)
 		}
 	} catch (err) {
 		if (err instanceof Error) {
@@ -106,7 +101,6 @@ export async function urlFromHTML(htmlBody: string, baseURL: string) {
 				urls.push(urlObj.href)
 			} catch (err) {
 				if (err instanceof Error) {
-					await logErrorLocal(`Error parsing url ${err.message}, stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
 				} else {
 					await logErrorLocal(`Unknown error parsing relative url`)
 				}
@@ -118,7 +112,6 @@ export async function urlFromHTML(htmlBody: string, baseURL: string) {
 				urls.push(urlObj.href)
 			} catch (err) {
 				if (err instanceof Error) {
-					await logErrorLocal(`Error parsing url ${err.message}, Stack trace:\n ${err.stack?.split('\n').slice(0, 5)}`)
 				} else {
 					await logErrorLocal(`Unknown error parsing complete url`)
 				}
