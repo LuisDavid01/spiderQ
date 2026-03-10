@@ -7,7 +7,7 @@ import type { ToolFn } from 'types'
 import path from 'path';
 import { getSessionId } from '../memory';
 
-export const CreateWordListToolDefinition = {
+export const createWordListToolDefinition = {
 	name: 'createWordListTool',
 	parameters: z
 		.object({
@@ -20,9 +20,9 @@ export const CreateWordListToolDefinition = {
 		.describe('reason about the target then use this tool to create a wordlist to be used by fuff'),
 }
 
-type Args = z.infer<typeof CreateWordListToolDefinition.parameters>
+type Args = z.infer<typeof createWordListToolDefinition.parameters>
 
-export const createWordListTool: ToolFn<Args, string> = async ({
+export const createWordList: ToolFn<Args, string> = async ({
 	toolArgs,
 	userMessage,
 }) => {
@@ -38,7 +38,7 @@ export const createWordListTool: ToolFn<Args, string> = async ({
 }
 
 
-export async function createWordListFromSessionId(wordlist: string, sessionId: string) {
+export async function createWordListFromSessionId(wordlist: string, sessionId: string | number) {
 
 	try {
 

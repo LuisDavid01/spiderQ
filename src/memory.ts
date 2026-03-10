@@ -1,115 +1,118 @@
-import { JSONFilePreset } from "lowdb/node";
+import { eq, desc, asc } from "drizzle-orm";
 import type { AIMessage } from "../types";
-import { v4 as uuidv4 } from "uuid";
 import { summarizeMessages } from "./llm";
+import { db } from "./db/db";
+import { messages, chats } from "./db/schema";
 
-
-// por ahora la base de datos para la memoria es
-// en memoria con lowdb
-// luego podriamos cambiarlo a una base de datos real
 export type MessageWithMetadata = AIMessage & {
-	id: string
-	createdAt: string
-}
-
-type Data = {
-	messages: MessageWithMetadata[]
-	summary: string
-	sessionId: string
-}
+	id: string;
+	createdAt: Date;
+};
 
 export const addMetadata = (message: AIMessage) => {
 	return {
 		...message,
-		id: uuidv4(),
-		createdAt: new Date().toLocaleString(),
-	}
-}
-
+		createdAt: new Date(),
+	};
+};
 
 export const removeMetadata = (message: MessageWithMetadata) => {
-	const { id, createdAt, ...rest } = message
-	return rest
-}
+	const { id, createdAt, ...rest } = message;
+	return rest;
+};
 
+const ensureChatExists = async () => {
+	const existingChat = await db.query.chats.findFirst({
+		where: eq(chats.id, 1),
+	});
 
-const defaultData: Data = {
-	messages: [],
-	summary: '',
-	sessionId: ``,
-}
-
-
-export const getDB = async () => {
-	const db = await JSONFilePreset<Data>('db.json', defaultData);
-	if (!db.data.sessionId) {
-		db.data.sessionId = `${Date.now()}${uuidv4()}`
-		await db.write()
+	if (!existingChat) {
+		await db.insert(chats).values({
+			id: 1,
+			summary: "",
+			title: "Chat inicial",
+			createdAt: new Date(),
+		});
 	}
-
-	return db
-}
-
-export const getMockDB = async () => {
-	const db = await JSONFilePreset<Data>('dbtest.json', defaultData);
-	if (!db.data.sessionId) {
-		db.data.sessionId = `mock-session`
-		await db.write()
-	}
-
-	return db
-}
-
+};
 
 export const addMessage = async (message: AIMessage[]) => {
-	const db = await getDB()
-	db.data.messages.push(...message.map(addMetadata));
+	await ensureChatExists();
 
-	// cada 10 mensajes, actualiza un resumen de la conversación
-	if (db.data.messages.length % 10 === 0) {
-		const oldestMessage = db.data.messages.slice(0, 5).map(removeMetadata)
-		const summary = await summarizeMessages(oldestMessage)
-		db.data.summary = summary
+	const messagesWithMeta = message.map(addMetadata);
+
+	await db.insert(messages).values(
+		messagesWithMeta.map((msg) => ({
+			role: msg.role,
+			chatId: 1,
+			data: JSON.stringify(msg),
+			createdAt: msg.createdAt,
+		}))
+	);
+
+	const allMessages = await db.query.messages.findMany({
+		where: eq(messages.chatId, 1),
+		orderBy: [asc(messages.id)],
+	});
+
+	if (allMessages.length > 0 && allMessages.length % 10 === 0) {
+		const oldestFive = allMessages.slice(0, 5).map((m) => {
+			const parsed = JSON.parse(m.data) as MessageWithMetadata;
+			return removeMetadata(parsed);
+		});
+		const summary = await summarizeMessages(oldestFive);
+		await db.update(chats).set({ summary }).where(eq(chats.id, 1));
 	}
-	await db.write();
-
-}
+};
 
 export const getAllMessages = async () => {
-	const db = await getDB()
-	return db.data.messages.map(removeMetadata)
+	const allMessages = await db.query.messages.findMany({
+		where: eq(messages.chatId, 1),
+		orderBy: [asc(messages.id)],
+	});
 
-}
+	return allMessages
+		.map((m) => JSON.parse(m.data) as MessageWithMetadata)
+		.map(removeMetadata);
+};
 
 export const getMessages = async () => {
-	const db = await getDB()
-	const messages = db.data.messages.map(removeMetadata)
-	const lastFive = messages.slice(-5)
+	const lastsix = await db.query.messages.findMany({
+		where: eq(messages.chatId, 1),
+		orderBy: [desc(messages.id)],
+		limit: 6,
+	});
 
-	if (lastFive[0]?.role === 'tool') {
-		const sixMessage = messages[messages.length - 6]
-		if (sixMessage) {
-			return [sixMessage, ...lastFive]
+	const parsedMessages = lastsix
+		.map((m) => JSON.parse(m.data) as MessageWithMetadata)
+		.map(removeMetadata)
+		.reverse();
+
+
+	const lastFive = parsedMessages.slice(-5);
+
+		if (lastFive[lastFive.length - 1]?.role === "tool") {
+			return parsedMessages;
 		}
-	}
-	return lastFive
-}
+	return lastFive;
+};
 
 export const saveToolResponse = async (
 	toolCallId: string,
 	toolResponse: string
 ) => {
 	return await addMessage([
-		{ role: 'tool', content: toolResponse, tool_call_id: toolCallId },
-	])
-}
+		{ role: "tool", content: toolResponse, tool_call_id: toolCallId },
+	]);
+};
 
 export const getSummary = async () => {
-	const db = await getDB()
-	return db.data.summary
-}
+	const chat = await db.query.chats.findFirst({
+		where: eq(chats.id, 1),
+	});
+	return chat?.summary ?? "";
+};
 
 export const getSessionId = async () => {
-	const db = await getDB()
-	return db.data.sessionId
-}
+	return 1;
+};
