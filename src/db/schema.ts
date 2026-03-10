@@ -1,6 +1,12 @@
 import { relations } from "drizzle-orm";
 import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
 
+export const chats = sqliteTable("chats", {
+	id: integer("id").primaryKey({autoIncrement: true}),
+	summary: text("summary"),
+	title: text("title"),
+	createdAt: integer("created_at", {mode: "timestamp"}),
+})
 export const messages = sqliteTable("messages", {
 	id: integer("id").primaryKey({autoIncrement: true}),
 	role: text("role"),
@@ -11,12 +17,7 @@ export const messages = sqliteTable("messages", {
 	createdAt: integer("created_at", {mode: "timestamp"}),
 })
 
-export const chats = sqliteTable("chats", {
-	id: integer("id").primaryKey({autoIncrement: true}),
-	summary: text("summary"),
-	title: text("title"),
-	createdAt: integer("created_at", {mode: "timestamp"}),
-})
+
 
 export const chatsRelations = relations(chats, ({ many }) => ({
   messages: many(messages),

@@ -1,5 +1,5 @@
 
-const ALLOWED_COMMANDS = ['-n nmap','nmap', 'grep', 'find', 'ffuf', 'whois']
+const ALLOWED_COMMANDS = ['-n nmap','nmap', 'grep', 'find', 'ffuf', 'whois', 'ls']
 
 const REQUIRE_ARGS: Record<string, boolean> = {
 	nmap: true,
@@ -11,21 +11,23 @@ const DANGEROUS_PATTERNS = /[;&|`$(){}<>\[\]!#*]|\$\{|>>|<<|\|\|/
 
 export function validateCommand(toolName: string, userArgs: string): {
 	valid: boolean
+	command: string
 	error?: string
 } {
 	const baseCommand = toolName.replace(/^sudo\s+/, '')
-
+	const trimmedArgs = userArgs.trim()
 	if (!ALLOWED_COMMANDS.includes(baseCommand)) {
-		return { valid: false, error: `Command '${baseCommand}' not allowed` }
+		return { valid: false, command: '',error: `Command '${baseCommand}' not allowed` }
 	}
 
-	if (REQUIRE_ARGS[baseCommand] && !userArgs.trim()) {
-		return { valid: false, error: 'Arguments required' }
+	if (REQUIRE_ARGS[baseCommand] && !trimmedArgs) {
+		return { valid: false,  command: '',error: 'Arguments required' }
 	}
 
 	if (DANGEROUS_PATTERNS.test(userArgs)) {
-		return { valid: false, error: 'Dangerous pattern detected' }
+		return { valid: false,  command: '',error: 'Dangerous pattern detected' }
 	}
+	const validatedCommand = `${toolName} ${trimmedArgs}`
 
-	return { valid: true }
+	return { valid: true,  command: validatedCommand }
 }

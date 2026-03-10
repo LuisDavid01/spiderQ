@@ -40,7 +40,6 @@ export const ffufFinder: ToolFn<Args, string> = async ({
 	const { ffufOptions, targetURL } = toolArgs
 	const homeDirectory = homedir()
 	const sessionId = await getSessionId()
-	console.log(sessionId)
 
 	const pathDir = path.join(homeDirectory, 'spiderQ', 'wordlists')
 	const outputDir = path.join(pathDir, `json_results`)
@@ -52,7 +51,7 @@ export const ffufFinder: ToolFn<Args, string> = async ({
 	const result = await executeCommand(baseCommand, commandParameters, { timeout: 200000 })
 
 	if (!result.success) {
-		logErrorLocal(`[ffuf] error: ${result.stderr}`)
+		await logErrorLocal(`[ffuf] error: ${result.stderr}`)
 		const response = JSON.stringify(result.stderr)
 
 		return encode(response)
@@ -65,13 +64,14 @@ export const ffufFinder: ToolFn<Args, string> = async ({
 
 }
 
-export async function createFfufOutputFromId(sessionId: string, outputDir: string) {
+export async function createFfufOutputFromId(sessionId: number, outputDir: string) {
 	try {
+		await fs.mkdir(outputDir, { recursive: true })
 		const file = await fs.readFile(`${outputDir}/${sessionId}.json`, "utf8")
 		const data = JSON.parse(file)
 		return data.results
 	} catch (error) {
-		logErrorLocal(`[ffuf] error: ${error}`)
+		await logErrorLocal(`[ffuf] error: ${error}`)
 		const response = "No se pudo encontrar el archivo, por favor revisar los logs locales del usuario"
 		return response
 	}

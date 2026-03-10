@@ -1,6 +1,5 @@
 import { eq, desc, asc } from "drizzle-orm";
 import type { AIMessage } from "../types";
-import { v4 as uuidv4 } from "uuid";
 import { summarizeMessages } from "./llm";
 import { db } from "./db/db";
 import { messages, chats } from "./db/schema";

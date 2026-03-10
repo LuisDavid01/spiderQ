@@ -15,19 +15,19 @@ export async function executeCommand(
 ) {
 	const { timeout = 30000 } = options
 
-	const validation = validateCommand(toolName, userArgs)
+	const validationResult = validateCommand(toolName, userArgs)
 
-	if (!validation.valid) {
+	if (!validationResult.valid) {
 		return {
 			success: false,
 			stdout: '',
-			stderr: validation.error || 'Invalid command',
+			stderr: validationResult.error || 'Invalid command',
 			error: 'Validation failed'
 		}
 	}
 
 	try {
-		const cmd = `${toolName} ${userArgs}`
+		const cmd = validationResult.command
 		const { stdout, stderr } = await execPromise(cmd, {
 			timeout,
 			maxBuffer: 1024 * 1024 * 10
