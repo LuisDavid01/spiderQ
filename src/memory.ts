@@ -13,7 +13,6 @@ export type MessageWithMetadata = AIMessage & {
 export const addMetadata = (message: AIMessage) => {
 	return {
 		...message,
-		id: uuidv4(),
 		createdAt: new Date(),
 	};
 };
@@ -79,23 +78,23 @@ export const getAllMessages = async () => {
 };
 
 export const getMessages = async () => {
-	const allMessages = await db.query.messages.findMany({
+	const lastsix = await db.query.messages.findMany({
 		where: eq(messages.chatId, 1),
-		orderBy: [asc(messages.id)],
+		orderBy: [desc(messages.id)],
+		limit: 6,
 	});
 
-	const parsedMessages = allMessages
+	const parsedMessages = lastsix
 		.map((m) => JSON.parse(m.data) as MessageWithMetadata)
-		.map(removeMetadata);
+		.map(removeMetadata)
+		.reverse();
+
 
 	const lastFive = parsedMessages.slice(-5);
 
-	if (lastFive[0]?.role === "tool") {
-		const sixMessage = parsedMessages[parsedMessages.length - 6];
-		if (sixMessage) {
-			return [sixMessage, ...lastFive];
+		if (lastFive[lastFive.length - 1]?.role === "tool") {
+			return parsedMessages;
 		}
-	}
 	return lastFive;
 };
 
