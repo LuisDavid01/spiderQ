@@ -1,0 +1,52 @@
+{
+  "name": "agents",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx src/cli/index.ts chat",
+    "chat": "tsx src/cli/index.ts chat",
+    "dashboard": "cd dashboard && (pnpm run dev || npm run dev)",
+    "eval": "npx tsx evals/run.ts",
+    "db:clean": "node -e \"require('fs').rmSync('main.db', { force: true });\" && drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "test": "vitest"
+  },
+  "overrides": {
+    "whatwg-url": "13.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "@toon-format/toon": "^1.2.0",
+    "autoevals": "^0.0.101",
+    "better-sqlite3": "^12.6.2",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "dotenv": "^16.6.1",
+    "drizzle-orm": "^0.45.1",
+    "figlet": "^1.9.3",
+    "got": "^14.4.4",
+    "gradient-string": "^3.0.0",
+    "linkedom": "^0.18.12",
+    "log-update": "^7.0.1",
+    "openai": "^6.18.0",
+    "ora": "^8.2.0",
+    "terminal-image": "^3.0.0",
+    "tsx": "^4.19.2",
+    "uuid": "^11.0.2",
+    "zod": "^3.23.8"
+  }
+}
