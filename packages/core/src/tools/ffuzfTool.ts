@@ -15,7 +15,7 @@ export const ffufToolDefinition = {
 			ffufOptions: z
 				.string()
 				.describe(
-					'flags for ffuf, do not include target url, wordlist path or output path here '
+					'flags for ffuf, do not include -u  or -w flags'
 				),
 			targetURL: z
 				.string()

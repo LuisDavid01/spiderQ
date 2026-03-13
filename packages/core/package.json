@@ -1,5 +1,15 @@
 {
-  "name": "core",
+  "name": "@spiderq/core",
+  "version": "0.0.1",
+  "description": "Core package for SpiderQ",
+  "main": "./src/index.ts",
+  "scripts": {
+	"db:clean": "node -e \"require('fs').rmSync('./src/db/main.db', { force: true });\" && drizzle-kit push && bun src/db/seed.ts",
+	"db:seed": "bun src/db/seed.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
+  },
   "exports":{
 	  ".": "./src/index.ts"
   },

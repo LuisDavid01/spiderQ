@@ -48,7 +48,7 @@ export async function createWordListFromSessionId(wordlist: string, sessionId: s
 		return "archivo creado correctamente"
 
 	} catch (error) {
-		logErrorLocal(`[wordlist] error: ${error}`)
+		await logErrorLocal(`[wordlist] error: ${error}`)
 		const response = "No se pudo crear el archivo, por favor revisar los logs locales del usuario"
 		return response
 	}

@@ -66,6 +66,7 @@ export const addMessage = async (message: AIMessage[]) => {
 };
 
 export const getAllMessages = async () => {
+	await ensureChatExists();
 	const allMessages = await db.query.messages.findMany({
 		where: eq(messages.chatId, 1),
 		orderBy: [asc(messages.id)],
@@ -77,6 +78,7 @@ export const getAllMessages = async () => {
 };
 
 export const getMessages = async () => {
+	await ensureChatExists();
 	const lastsix = await db.query.messages.findMany({
 		where: eq(messages.chatId, 1),
 		orderBy: [desc(messages.id)],
