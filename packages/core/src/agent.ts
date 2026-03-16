@@ -1,8 +1,8 @@
 
 
-import { runLLM } from "./llm";
-import { addMessage, getMessages, saveToolResponse } from "./memory";
-import { runTool } from "./toolRunner";
+import { runLLM } from "./llm.js";
+import { addMessage, getMessages, saveToolResponse } from "./memory.js";
+import { runTool } from "./toolRunner.js";
 
 
 type RunAgentInput = {

@@ -11,7 +11,8 @@
     "db:push": "drizzle-kit push"
   },
   "exports":{
-	  ".": "./src/index.ts"
+	  ".": "./src/index.ts",
+	  "./types": "./types.ts"
   },
   "type": "module",
   "private": true,
