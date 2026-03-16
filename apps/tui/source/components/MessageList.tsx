@@ -93,40 +93,28 @@ function MessageItem({ message }: { message: AIMessage }) {
 }
 
 
-
-const HEADER_ROWS = 3;
-const FOOTER_ROWS = 3;
-
 interface MessageListProps {
   messages: AIMessage[];
+  rows: number;
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({ messages, rows }: MessageListProps) {
   const { stdout } = useStdout();
-  const terminalHeight = stdout?.rows ?? 24;
   const scrollRef = useRef<ScrollViewRef>(null);
 
-  // Remedir al resize del terminal
   useEffect(() => {
     const handleResize = () => scrollRef.current?.remeasure();
     stdout?.on("resize", handleResize);
-    return () => {
-      stdout?.off("resize", handleResize);
-    };
+    return () => { stdout?.off("resize", handleResize); };
   }, [stdout]);
 
-  // Scroll al último mensaje cuando llegan mensajes nuevos
   useEffect(() => {
     scrollRef.current?.scrollToBottom();
   }, [messages.length]);
 
   useInput((_, key) => {
-    if (key.upArrow) {
-      scrollRef.current?.scrollBy(-1);
-    }
-    if (key.downArrow) {
-      scrollRef.current?.scrollBy(1);
-    }
+    if (key.upArrow)   scrollRef.current?.scrollBy(-1);
+    if (key.downArrow) scrollRef.current?.scrollBy(1);
     if (key.pageUp) {
       const height = scrollRef.current?.getViewportHeight() ?? 1;
       scrollRef.current?.scrollBy(-height);
@@ -138,10 +126,7 @@ export function MessageList({ messages }: MessageListProps) {
   });
 
   return (
-    <Box
-      flexDirection="column"
-      height={terminalHeight}
-    >
+    <Box flexDirection="column" flexGrow={1}>
       {/* Header */}
       <Box
         paddingX={1}
@@ -157,11 +142,7 @@ export function MessageList({ messages }: MessageListProps) {
       </Box>
 
       {/* Scroll area */}
-      <Box
-        flexGrow={1}
-        height={terminalHeight - HEADER_ROWS - FOOTER_ROWS}
-        flexDirection="column"
-      >
+      <Box flexGrow={1} flexDirection="column">
         <ScrollView ref={scrollRef}>
           <Box flexDirection="column" paddingX={1}>
             {messages.length === 0 ? (

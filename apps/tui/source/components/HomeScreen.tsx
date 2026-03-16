@@ -3,12 +3,17 @@ import { useMessages } from "../hooks/useMessage";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 
-export function HomeScreen() {
+interface HomeScreenProps {
+  columns: number;
+  rows: number;
+}
+
+export function HomeScreen({ columns, rows }: HomeScreenProps) {
   const { messages, loading, error, addMessage } = useMessages();
 
   if (loading) {
     return (
-      <Box paddingX={1}>
+      <Box width={columns} height={rows} alignItems="center" justifyContent="center">
         <Text dimColor>Loading messages...</Text>
       </Box>
     );
@@ -16,15 +21,19 @@ export function HomeScreen() {
 
   if (error) {
     return (
-      <Box paddingX={1}>
+      <Box width={columns} height={rows} alignItems="center" justifyContent="center">
         <Text color="red">Error: {error.message}</Text>
       </Box>
     );
   }
 
   return (
-    <Box flexDirection="column">
-      <MessageList messages={messages} />
+    <Box width={columns} height={rows} flexDirection="column">
+      {/* MessageList ocupa todo el espacio disponible menos el input */}
+      <Box flexGrow={1} flexDirection="column">
+        <MessageList messages={messages} rows={rows} />
+      </Box>
+      {/* Input siempre visible al fondo */}
       <MessageInput addMessage={addMessage} />
     </Box>
   );
