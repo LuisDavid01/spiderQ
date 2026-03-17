@@ -1,5 +1,6 @@
 
 
+import { GlobalConfig } from '@spiderq/core/config';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import gradient from 'gradient-string';
@@ -13,7 +14,8 @@ export function showWelcome() {
   console.log(title);
 
   // Subtítulo simple
-  const subtitle = `${chalk.cyan('SpiderQ')} ${chalk.white('•')} ${chalk.white('CLI Pentest Assistant')}`;
+  const subtitle = `${chalk.cyan('SpiderQ')} ${chalk.white('•')} ${chalk.white('CLI Pentest Assistant')} 
+  ${chalk.yellow(GlobalConfig.provider)} ${chalk.white(GlobalConfig.model)}`;
   console.log(subtitle, '\n');
 }
 

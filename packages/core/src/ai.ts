@@ -1,15 +1,27 @@
 import 'dotenv/config';
 import OpenAI from 'openai';
+import { GlobalConfig } from './utils/config';
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('Falta OPENAI_API_KEY en .env o en variables de entorno.');
-}
 
-const client = new OpenAI({
+
+const OpenAIclient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!, 
 });
 
+const OperRouterClient = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY, 
+  baseURL: 'https://openrouter.ai/api/v1',
+});
 
-export default client;
-export { client };
-export const openai = client;
+export function getClient() {
+	console.log('Provider:', GlobalConfig.provider)
+	const provider = GlobalConfig.provider
+	if (provider === 'openai') {
+		return OpenAIclient
+	} else if (provider === 'openrouter') {
+		return OperRouterClient
+	}
+
+	return OpenAIclient
+};
+

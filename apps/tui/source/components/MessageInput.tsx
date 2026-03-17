@@ -19,7 +19,7 @@ export function MessageInput({ addMessage }: MessageInputProps) {
   }
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" minHeight={3}>
       {error && (
         <Box paddingX={1}>
           <Text color="red">Error: {error.message}</Text>

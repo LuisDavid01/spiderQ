@@ -50,4 +50,11 @@ export interface Pages {
   [key: string]: PageData;
 }
 
+export type Config =  {
+	apiKey: string,
+	model: string,
+	maxTokens: number,
+	spiderqApiKey?: string,
+	provider: string
+}
 

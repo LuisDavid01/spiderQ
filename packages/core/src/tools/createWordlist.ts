@@ -42,7 +42,7 @@ export async function createWordListFromSessionId(wordlist: string, sessionId: s
 	try {
 
 		const homeDirectory = homedir()
-		const pathDir = path.join(homeDirectory, 'spiderQ', 'wordlists')
+		const pathDir = path.join(homeDirectory, '.spiderq', 'wordlists')
 		await fs.mkdir(pathDir, { recursive: true })
 		await fs.writeFile(`${pathDir}/${sessionId}.txt`, wordlist)
 		return "archivo creado correctamente"

@@ -12,7 +12,8 @@
   },
   "exports":{
 	  ".": "./src/index.ts",
-	  "./types": "./types.ts"
+	  "./types": "./types.ts",
+	  "./config": "./src/utils/config.ts"
   },
   "type": "module",
   "private": true,
