@@ -4,7 +4,7 @@
   "description": "Core package for SpiderQ",
   "main": "./src/index.ts",
   "scripts": {
-	"db:clean": "node -e \"require('fs').rmSync('./src/db/main.db', { force: true });\" && drizzle-kit push && bun src/db/seed.ts",
+	"db:clean": "bun src/utilsScripts/cleanDB.js && drizzle-kit push && bun src/db/seed.ts",
 	"db:seed": "bun src/db/seed.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

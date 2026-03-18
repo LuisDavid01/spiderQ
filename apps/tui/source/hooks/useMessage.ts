@@ -1,4 +1,3 @@
-// hooks/useMessages.ts
 import { useState, useEffect } from "react";
 import { getAllMessages } from "@spiderq/core";
 import type { AIMessage } from "@spiderq/core/types";
