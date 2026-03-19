@@ -4,6 +4,7 @@
   "description": "Core package for SpiderQ",
   "main": "./src/index.ts",
   "scripts": {
+	"db:init": "bun src/utilsScripts/init.js && drizzle-kit push && bun db:seed",
 	"db:clean": "bun src/utilsScripts/cleanDB.js && drizzle-kit push && bun src/db/seed.ts",
 	"db:seed": "bun src/db/seed.ts",
     "db:generate": "drizzle-kit generate",

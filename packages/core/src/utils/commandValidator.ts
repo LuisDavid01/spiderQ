@@ -1,5 +1,5 @@
 
-const ALLOWED_COMMANDS = ['-n nmap','nmap', 'grep', 'find', 'ffuf', 'whois', 'ls']
+const ALLOWED_COMMANDS = ['-n nmap','nmap', 'grep', 'find', 'ffuf', 'whois', 'ls', 'mmdc']
 
 const REQUIRE_ARGS: Record<string, boolean> = {
 	nmap: true,
