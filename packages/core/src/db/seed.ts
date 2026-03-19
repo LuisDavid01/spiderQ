@@ -7,3 +7,5 @@ await db.insert(chats).values({
   title: "Chat inicial",
   createdAt: new Date(),
 }).onConflictDoNothing();
+
+console.log("mock data inserted");

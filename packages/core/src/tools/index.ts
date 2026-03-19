@@ -1,5 +1,6 @@
 import { crawlerToolDefinition } from "./crawler";
 import { createWordListToolDefinition } from "./createWordlist";
+import { diagramToolDefinition } from "./diagrams";
 import { ffufToolDefinition } from "./ffuzfTool";
 import { nmapToolDefinition } from "./nmap";
 import { whoisToolDefinition } from "./whoisTool";
@@ -12,4 +13,5 @@ export const tools = [
 	createWordListToolDefinition,
 	ffufToolDefinition,
 	whoisToolDefinition,
+	diagramToolDefinition,
 ]

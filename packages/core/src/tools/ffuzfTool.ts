@@ -15,7 +15,7 @@ export const ffufToolDefinition = {
 			ffufOptions: z
 				.string()
 				.describe(
-					'flags for ffuf, do not include -u  or -w flags'
+					'flags for ffuf, do not include -u , -w, -o flags inside the options'
 				),
 			targetURL: z
 				.string()
@@ -41,7 +41,7 @@ export const ffufFinder: ToolFn<Args, string> = async ({
 	const homeDirectory = homedir()
 	const sessionId = await getSessionId()
 
-	const pathDir = path.join(homeDirectory, 'spiderQ', 'wordlists')
+	const pathDir = path.join(homeDirectory, '.spiderq', 'wordlists')
 	const outputDir = path.join(pathDir, `json_results`)
 
 	const baseCommand = `ffuf`

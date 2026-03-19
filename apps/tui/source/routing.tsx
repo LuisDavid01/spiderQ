@@ -4,13 +4,19 @@ import { HomeScreen } from "./components/HomeScreen.js";
 import { Models } from "./components/Models.js";
 import { Settings } from "./components/Settings.js";
 
-export function Routing() {
-	const {screen} = useNavigation();
-	return (
-		<Box>
-			{screen === 'home' && <HomeScreen />}
-			{screen === 'models' && <Models />}
-			{screen === 'settings' && <Settings />}
-		</Box>
-	);
+interface RoutingProps {
+  columns: number;
+  rows: number;
+}
+
+export function Routing({ columns, rows }: RoutingProps) {
+  const { screen } = useNavigation();
+
+  return (
+    <Box width={columns} height={rows} flexDirection="column">
+      {screen === 'home'     && <HomeScreen columns={columns} rows={rows} />}
+      {screen === 'models'   && <Models />}
+      {screen === 'settings' && <Settings />}
+    </Box>
+  );
 }

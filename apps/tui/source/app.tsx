@@ -8,36 +8,25 @@ type Props = {
 };
 
 export default function App({ name = 'Stranger' }: Props) {
-	const { stdout } = useStdout();
-	const [size, setSize] = useState({
-		columns: stdout.columns,
-		rows: stdout.rows,
-	});
+  const { stdout } = useStdout();
+  const [size, setSize] = useState({
+    columns: stdout.columns,
+    rows: stdout.rows,
+  });
 
-	useEffect(() => {
-		const onResize = () => {
-			setSize({
-				columns: stdout.columns,
-				rows: stdout.rows,
-			});
-		};
+  useEffect(() => {
+    const onResize = () => {
+      setSize({ columns: stdout.columns, rows: stdout.rows });
+    };
+    stdout.on('resize', onResize);
+    return () => { stdout.off('resize', onResize); };
+  }, [stdout]);
 
-		stdout.on('resize', onResize);
-		return () => {
-			stdout.off('resize', onResize);
-		};
-	}, [stdout]);
-
-	return (
-		<NavigationProvider>
-			<Box
-				width={size.columns}
-				height={size.rows}
-				alignItems="center"
-				justifyContent="center"
-			>
-			<Routing />
-			</Box>
-		</NavigationProvider>
-	);
+  return (
+    <NavigationProvider>
+      <Box width={size.columns} height={size.rows} flexDirection="column">
+        <Routing columns={size.columns} rows={size.rows} />
+      </Box>
+    </NavigationProvider>
+  );
 }

@@ -1,7 +1,8 @@
 import type { AIMessage } from '../types'
-import { openai } from './ai'
 import { zodFunction } from 'openai/helpers/zod'
 import { defaultSystemPrompt } from './systemPrompt'
+import { getClient } from './ai'
+import { GlobalConfig } from './utils/config'
 
 
 // Llama al LLM con el contexto y herramientas
@@ -15,10 +16,14 @@ export const runLLM = async ({
 		tools?: any[],
 		systemPrompt?: string
 	}) => {
+
 	// las tools deben seguir un formato especifico
 	const formattedTools = tools.map(zodFunction)
-	const response = await openai.chat.completions.create({
-		model: 'gpt-5-nano',
+	const model = GlobalConfig.model
+	const client = getClient()
+	
+	const response = await client.chat.completions.create({
+		model: model,
 		messages: [
 			{ role: 'system', content: systemPrompt || defaultSystemPrompt }
 			, ...messages

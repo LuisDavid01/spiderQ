@@ -5,14 +5,18 @@
 	"bin": "dist/cli.js",
 	"type": "module",
 	"scripts": {
-		"build": "tsc",
-		"dev": "tsc --watch",
+		"typecheck": "tsc --noEmit",
+		"dev": "bun --watch source/cli.tsx",
+		"start": "bun source/cli.tsx",
+		"build": "bun build source/cli.tsx --outdir dist --target bun",
 		"test": "prettier --check . && xo && bun test"
 	},
 	"files": ["dist"],
 	"dependencies": {
 		"@spiderq/core": "workspace:*",
 		"ink": "^4.1.0",
+		"ink-scroll-view": "^0.3.6",
+		"ink-text-input": "^6.0.0",
 		"meow": "^11.0.0",
 		"react": "^18.2.0"
 	},

@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { showWelcome } from './ui';
 import { chatLoop } from './loop';
+import { loadConfig } from '@spiderq/core/config';
 
 
 
@@ -16,8 +17,6 @@ if (process.env.NODE_ENV === 'development') {
 
 const program = new Command();
 
-// Banner inicial
-showWelcome();
 
 program
 	.name('SpiderQ')
@@ -33,6 +32,8 @@ program
 	.action(() => {
 		// Se retorna la promesa para que Commander no cierre el proceso
 		return (async () => {
+			await loadConfig();
+			showWelcome();
 			return chatLoop(); // el loop queda funcionando hasta exit / Ctrl+C
 		})();
 	});

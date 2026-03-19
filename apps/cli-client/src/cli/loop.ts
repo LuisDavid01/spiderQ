@@ -2,8 +2,7 @@ import readline from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
 import {runAgent, getAllMessages, tools} from '@spiderq/core';
 import { tags, printTip } from './ui';
-
-
+import { loadConfig } from '@spiderq/core/config';
 
 
 function requestUserInput(query: string): Promise<string> {
@@ -34,6 +33,8 @@ export async function chatLoop(): Promise<void> {
   }
 
   printTip('Escribe "exit" o "salir" para terminar.\n');
+
+
 
 
 

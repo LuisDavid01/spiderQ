@@ -1,9 +1,10 @@
 import type OpenAI from "openai"
-import { crawler, crawlerToolDefinition } from "./tools/crawler"
-import { nmapFinder, nmapToolDefinition } from "./tools/nmap"
-import { ffufFinder, ffufToolDefinition } from "./tools/ffuzfTool"
-import { lookupWhois, whoisToolDefinition } from "./tools/whoisTool"
-import { createWordList, createWordListToolDefinition } from "./tools/createWordlist"
+import { crawler, crawlerToolDefinition } from "./tools/crawler.js"
+import { nmapFinder, nmapToolDefinition } from "./tools/nmap.js"
+import { ffufFinder, ffufToolDefinition } from "./tools/ffuzfTool.js"
+import { lookupWhois, whoisToolDefinition } from "./tools/whoisTool.js"
+import { createWordList, createWordListToolDefinition } from "./tools/createWordlist.js"
+import { createDiagram, diagramToolDefinition } from "./tools/diagrams.js"
 
 
 export const runTool = async (toolCall:
@@ -30,6 +31,8 @@ export const runTool = async (toolCall:
 			return await lookupWhois(input)
 		case createWordListToolDefinition.name:
 			return await createWordList(input)
+		case diagramToolDefinition.name:
+			return await createDiagram(input)
 		default:
 			// @ts-ignore
 			return `Stop dont call this tool again ${toolCall.function.name}`
