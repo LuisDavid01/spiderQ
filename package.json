@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-	  "tui": "tui",
+	  "dev-tui": "cd apps/tui && bun run dev",
 	  "dev-cli": "cd apps/cli-client && bun run dev"
   },
   "devDependencies": {

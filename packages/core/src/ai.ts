@@ -13,15 +13,23 @@ const OperRouterClient = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
 });
 
+const LocalAIClient = new OpenAI({
+	baseURL: 'http://localhost:11434/v1',
+	apiKey: 'any',
+});
+
 export function getClient() {
 	console.log('Provider:', GlobalConfig.provider)
 	const provider = GlobalConfig.provider
-	if (provider === 'openai') {
-		return OpenAIclient
-	} else if (provider === 'openrouter') {
-		return OperRouterClient
+	switch (provider) {
+		case 'openai':
+			return OpenAIclient;
+		case 'operrouter':
+			return OperRouterClient;
+		case 'local':
+			return LocalAIClient;
+		default:
+			return OpenAIclient;
 	}
-
-	return OpenAIclient
 };
 
