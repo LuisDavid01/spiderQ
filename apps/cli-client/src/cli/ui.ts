@@ -15,7 +15,8 @@ export function showWelcome() {
 
   // Subtítulo simple
   const subtitle = `${chalk.cyan('SpiderQ')} ${chalk.white('•')} ${chalk.white('CLI Pentest Assistant')} 
-  ${chalk.yellow(GlobalConfig.provider)} ${chalk.white(GlobalConfig.model)}`;
+  ${chalk.yellow(GlobalConfig.provider)} ${chalk.white(GlobalConfig.model)}\n
+  ${chalk.yellow(GlobalConfig.localUrl)}`;
   console.log(subtitle, '\n');
 }
 

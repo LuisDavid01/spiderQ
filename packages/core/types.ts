@@ -55,6 +55,7 @@ export type Config =  {
 	model: string,
 	maxTokens: number,
 	spiderqApiKey?: string,
-	provider: string
+	provider: string,
+	localUrl?: string,
 }
 
