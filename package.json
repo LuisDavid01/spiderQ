@@ -7,7 +7,8 @@
   ],
   "scripts": {
 	  "dev-tui": "cd apps/tui && bun run dev",
-	  "dev-cli": "cd apps/cli-client && bun run dev"
+	  "dev-cli": "cd apps/cli-client && bun run dev",
+	  "spiderq:init": "cd packages/core && bun run db:init",
   },
   "devDependencies": {
     "@types/bun": "latest"
