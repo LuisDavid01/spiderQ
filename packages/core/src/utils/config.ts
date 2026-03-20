@@ -8,7 +8,8 @@ const defaultConfig: Config = {
 	model: 'gpt-5-nano',
 	maxTokens: 5000,
 	spiderqApiKey: '',
-	provider: 'openai'
+	provider: 'openai',
+	localUrl: 'http://localhost:11434/v1',
 }
 
 
