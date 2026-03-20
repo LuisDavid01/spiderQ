@@ -5,17 +5,12 @@ import { GlobalConfig } from './utils/config';
 
 
 const OpenAIclient = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY!,
+	apiKey: process.env.OPENAI_API_KEY,
 });
 
 const OperRouterClient = new OpenAI({
 	apiKey: process.env.OPENROUTER_API_KEY,
 	baseURL: 'https://openrouter.ai/api/v1',
-});
-
-const LocalAIClient = new OpenAI({
-	baseURL: GlobalConfig.localUrl,
-	apiKey: 'any',
 });
 
 export function getClient() {
@@ -26,7 +21,14 @@ export function getClient() {
 		case 'operrouter':
 			return OperRouterClient;
 		case 'local':
-			return LocalAIClient;
+			const url = GlobalConfig.localUrl?.trim()
+
+			console.log('Using local AI', url)
+
+			return new OpenAI({
+				baseURL: url,
+				apiKey: 'sk-local',
+			})
 		default:
 			return OpenAIclient;
 	}
