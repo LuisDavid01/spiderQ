@@ -66,6 +66,9 @@ install_tools() {
     curl -fsSL https://bun.sh/install | bash
     export PATH="$HOME/.bun/bin:$PATH"
   fi
+
+  export PATH="$HOME/.bun/bin:$HOME/go/bin:$PATH"
+
   if ! has_command ffuf; then
    log "Instalando ffuf..."
    go install github.com/ffuf/ffuf/v2@latest
