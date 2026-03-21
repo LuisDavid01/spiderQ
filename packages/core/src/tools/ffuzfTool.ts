@@ -15,18 +15,47 @@ export const ffufToolDefinition = {
 			ffufOptions: z
 				.string()
 				.describe(
-					'flags for ffuf, do not include -u , -w, -o flags inside the options'
+					'valid flags for ffuf your base command is ffuf -u <targetUrl> -w (defined already) <ffufOptions> -o (defined already), do not duplicate flags '
 				),
 			targetURL: z
 				.string()
 				.describe(
-					'URL of the target'
+					'URL of the target with FUZZ keyword, for example: https://example.com/FUZZ'
 				),
 
 
 
 		})
-		.describe('use this tool to run ffuf, the base command already specifies the path to the wordlist and the output path, specify the target url but do not include it on the options flags'),
+		.describe(`use this tool to run ffuf
+
+
+STRICT RULES:
+- Only output VALID ffuf flags.
+- Do NOT invent flags.
+- Do NOT include the base command "ffuf".
+- Do NOT include -u, -w, or -o (they are already handled).
+- Include the word FUZZ in the target URL if it dosent have it already.
+- Use only official ffuf flags.
+
+
+VALID FLAGS EXAMPLES:
+-c
+-r
+-t 50
+-H "Header: value"
+-X POST
+-d "body=data"
+-of json
+
+INVALID EXAMPLES:
+--output-json
+	-m "Content-Type: text/html"
+	-r 3
+
+	GOAL:
+	Generate safe and correct ffuf parameters based on the user request.
+
+				  `),
 }
 
 type Args = z.infer<typeof ffufToolDefinition.parameters>
@@ -46,7 +75,7 @@ export const ffufFinder: ToolFn<Args, string> = async ({
 
 	const baseCommand = `ffuf`
 	const commandParameters = `-u ${targetURL} -w ${pathDir}/${sessionId}.txt ${ffufOptions} -o ${outputDir}/${sessionId}.json`
-
+	console.log(commandParameters)
 
 	const result = await executeCommand(baseCommand, commandParameters, { timeout: 200000 })
 
@@ -57,24 +86,25 @@ export const ffufFinder: ToolFn<Args, string> = async ({
 		return encode(response)
 	}
 
-	const data = await createFfufOutputFromId(sessionId, outputDir)
+	try {
+		const data = await createFfufOutputFromId(sessionId, outputDir)
+		const usefulData = JSON.stringify(data)
+		return encode(usefulData)
 
-	const usefulData = JSON.stringify(data)
-	return encode(usefulData)
+	} catch (error) {
+		await logErrorLocal(`[ffuf] error: ${error}`)
+		const response = `tool error: ${error}, command executed: ${baseCommand} ${commandParameters}`
+		return response
+	}
 
 }
 
 export async function createFfufOutputFromId(sessionId: number, outputDir: string) {
-	try {
 		await fs.mkdir(outputDir, { recursive: true })
 		const file = await fs.readFile(`${outputDir}/${sessionId}.json`, "utf8")
 		const data = JSON.parse(file)
 		return data.results
-	} catch (error) {
-		await logErrorLocal(`[ffuf] error: ${error}`)
-		const response = "No se pudo encontrar el archivo, por favor revisar los logs locales del usuario"
-		return response
-	}
+
 }
 
 
