@@ -56,11 +56,11 @@ export const addMessage = async (message: AIMessage[]) => {
 	});
 
 	if (allMessages.length > 0 && allMessages.length % 10 === 0) {
-		const oldestFive = allMessages.slice(0, 5).map((m) => {
+		const summarizedmsgs = allMessages.slice(0, 10).map((m) => {
 			const parsed = JSON.parse(m.data) as MessageWithMetadata;
 			return removeMetadata(parsed);
 		});
-		const summary = await summarizeMessages(oldestFive);
+		const summary = await summarizeMessages(summarizedmsgs);
 		await db.update(chats).set({ summary }).where(eq(chats.id, 1));
 	}
 };

@@ -3,6 +3,7 @@ import { zodFunction } from 'openai/helpers/zod'
 import { defaultSystemPrompt } from './systemPrompt'
 import { getClient } from './ai'
 import { GlobalConfig } from './utils/config'
+import { getSummary } from './memory'
 
 
 // Llama al LLM con el contexto y herramientas
@@ -39,10 +40,14 @@ export const runLLM = async ({
 }
 
 export const summarizeMessages = async (messages: AIMessage[]) => {
+	const prevSummary = await getSummary()
 	const response = await runLLM({
 		systemPrompt:
 			'Summarize the key points of the conversation in a concise way that would be helpful as context for future interactions. Make it like a play by play of the conversation.',
-		messages,
+		messages: [
+			{ role: 'assistant', content: prevSummary },
+			...messages,
+		],
 	})
 
 	return response?.content || ''

@@ -1,42 +1,19 @@
 import 'dotenv/config'
 import type { Score, Scorer } from 'autoevals'
 import chalk from 'chalk'
-import { JSONFilePreset } from 'lowdb/node'
+import { db } from '@/db/db'
+import { experiments, runs, sets } from '@/db/schema'
+import { eq, type InferSelectModel } from 'drizzle-orm'
 
-type Run = {
-  input: any
-  output: any
-  expected: any
-  scores: {
-    name: Score['name']
-    score: Score['score']
-  }[]
-  createdAt?: string
-}
+type Run = InferSelectModel<typeof runs>
 
-type Set = {
-  runs: Run[]
-  score: number
-  createdAt: string
-}
+type Set = InferSelectModel<typeof sets>
 
-type Experiment = {
-  name: string
-  sets: Set[]
-}
 
-type Data = {
-  experiments: Experiment[]
-}
+type Experiment = InferSelectModel<typeof experiments>
 
-const defaultData: Data = {
-  experiments: [],
-}
 
-const getDb = async () => {
-  const db = await JSONFilePreset<Data>('results.json', defaultData)
-  return db
-}
+
 
 const calculateAvgScore = (runs: Run[]) => {
   const totalScores = runs.reduce((sum, run) => {
@@ -51,15 +28,17 @@ const calculateAvgScore = (runs: Run[]) => {
 export const loadExperiment = async (
   experimentName: string
 ): Promise<Experiment | undefined> => {
-  const db = await getDb()
-  return db.data.experiments.find((e) => e.name === experimentName)
+  const experiment = await db.query.experiments.findFirst({
+	  where: eq(experiments.name, experimentName)
+  })
+
+  return experiment
 }
 
 export const saveSet = async (
   experimentName: string,
   runs: Omit<Run, 'createdAt'>[]
 ) => {
-  const db = await getDb()
 
   const runsWithTimestamp = runs.map((run) => ({
     ...run,
@@ -72,20 +51,19 @@ export const saveSet = async (
     createdAt: new Date().toISOString(),
   }
 
-  const existingExperiment = db.data.experiments.find(
-    (e) => e.name === experimentName
-  )
+  const existingExperiment = db.query.experiments.findFirst({
+	  where: eq(experiments.name, experimentName)
+  })
 
   if (existingExperiment) {
-    existingExperiment.sets.push(newSet)
+    await db.update(experiments).set({ sets: [newSet] }).where(eq(experiments.id, existingExperiment.id))
   } else {
-    db.data.experiments.push({
-      name: experimentName,
-      sets: [newSet],
-    })
+	  await db.insert(experiments).values({
+		  name: experimentName,
+		  sets: [newSet],
+	  })
   }
 
-  await db.write()
 }
 
 export const runEval = async <T = any>(

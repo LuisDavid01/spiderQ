@@ -17,6 +17,46 @@ export const messages = sqliteTable("messages", {
 	createdAt: integer("created_at", {mode: "timestamp"}),
 })
 
+export const experiments = sqliteTable("experiments", {
+	id: integer("id").primaryKey({autoIncrement: true}),
+	name: text("name"),
+	sets: integer("sets"),
+	createdAt: integer("created_at", {mode: "timestamp"}),
+
+})
+
+export const sets = sqliteTable("sets", {
+	id: integer("id").primaryKey({autoIncrement: true}),
+	experimentId: integer("experiment_id")
+		.notNull()
+		.references(() => experiments.id, { onDelete: "cascade" }),
+	runs: integer("runs"),
+	score: integer("score"),
+	createdAt: integer("created_at", {mode: "timestamp"}),
+
+})
+
+export const runs = sqliteTable("runs", {
+	id: integer("id").primaryKey({autoIncrement: true}),
+	setId: integer("set_id")
+		.notNull()
+		.references(() => sets.id, { onDelete: "cascade" }),
+	input: text("input"),
+	output: text("output"),
+	expected: text("expected"),
+	scores: integer("scores"),
+	createdAt: integer("created_at", {mode: "timestamp"}),
+
+})
+
+export const scores = sqliteTable("scores", {
+	id: integer("id").primaryKey({autoIncrement: true}),
+	runId: integer("run_id")
+		.notNull()
+		.references(() => runs.id, { onDelete: "cascade" }),
+	name: text("name"),
+	score: integer("score"),
+})
 
 
 export const chatsRelations = relations(chats, ({ many }) => ({
@@ -25,5 +65,17 @@ export const chatsRelations = relations(chats, ({ many }) => ({
 
 export const messagesRelations = relations(messages, ({ one }) => ({
   chat: one(chats, { fields: [messages.chatId], references: [chats.id] }),
+}));
+
+export const setsRelations = relations(sets, ({ one }) => ({
+  experiment: one(experiments, { fields: [sets.experimentId], references: [experiments.id] }),
+}));
+
+export const runsRelations = relations(runs, ({ one }) => ({
+  set: one(sets, { fields: [runs.setId], references: [sets.id] }),
+}));
+
+export const scoresRelations = relations(scores, ({ one }) => ({
+  run: one(runs, { fields: [scores.runId], references: [runs.id] }),
 }));
 

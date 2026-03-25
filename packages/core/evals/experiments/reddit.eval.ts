@@ -1,5 +1,5 @@
+import { ffufToolDefinition } from "@/tools/ffuzfTool";
 import { runLLM } from "../../src/llm";
-import { redditToolDefinition } from "../../src/tools/reddit";
 import { runEval } from "../evalTools";
 import { ToolCallMatch } from "../scorers";
 
@@ -12,15 +12,15 @@ const createToolCallMessage = (toolName: string) => ({
 		}
 	}]
 })
-runEval('reddit', {
+runEval('ffuf', {
 	task: (input) => runLLM({
 		messages: [{role: 'user', content: input}],
-			tools:[redditToolDefinition]
+			tools:[ffufToolDefinition]
 	}),
 	data: [
 		{
-			input: 'Busca un articulo sobre ciberseguridad en reddit',
-			expected: createToolCallMessage(redditToolDefinition.name)
+			input: 'Utiliza ffuf para encontrar subdominios en este sitio web de prueba: example.com',
+			expected: createToolCallMessage(ffufToolDefinition.name)
 		}
 	],
 	scorers: [ToolCallMatch]
