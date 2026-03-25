@@ -2,24 +2,38 @@ import 'dotenv/config'
 import type { Score, Scorer } from 'autoevals'
 import chalk from 'chalk'
 import { db } from '@/db/db'
-import { experiments, runs, sets } from '@/db/schema'
-import { eq, type InferSelectModel } from 'drizzle-orm'
+import { experiments, runs, sets, scores } from '@/db/schema'
+import { eq, desc } from 'drizzle-orm'
 
-type Run = InferSelectModel<typeof runs>
+type RunScore = {
+  name: string
+  score: number
+}
 
-type Set = InferSelectModel<typeof sets>
+type RunData = {
+  input: string
+  output: string
+  expected?: string
+  scores: RunScore[]
+}
 
+type SetData = {
+  name: string
+  score: number
+  runs: RunData[]
+}
 
-type Experiment = InferSelectModel<typeof experiments>
+type ExperimentData = {
+  name: string
+  description?: string
+  sets: SetData[]
+}
 
-
-
-
-const calculateAvgScore = (runs: Run[]) => {
+const calculateAvgScore = (runs: RunData[]): number => {
+  if (runs.length === 0) return 0
   const totalScores = runs.reduce((sum, run) => {
-    const runAvg =
-      run.scores.reduce((sum, score) => sum + score.score, 0) /
-      run.scores.length
+    if (run.scores.length === 0) return sum
+    const runAvg = run.scores.reduce((s, sc) => s + sc.score, 0) / run.scores.length
     return sum + runAvg
   }, 0)
   return totalScores / runs.length
@@ -27,43 +41,94 @@ const calculateAvgScore = (runs: Run[]) => {
 
 export const loadExperiment = async (
   experimentName: string
-): Promise<Experiment | undefined> => {
+) => {
   const experiment = await db.query.experiments.findFirst({
-	  where: eq(experiments.name, experimentName)
+    where: eq(experiments.name, experimentName),
+    with: {
+      sets: {
+        orderBy: [desc(sets.createdAt)],
+        with: {
+          runs: {
+            with: {
+              scores: true
+            }
+          }
+        }
+      }
+    }
   })
 
-  return experiment
+  if (!experiment) return undefined
+
+  const transformedSets: SetData[] = experiment.sets.map(set => ({
+    name: set.name || '',
+    score: set.score ?? 0,
+    runs: set.runs.map(run => ({
+      input: run.input,
+      output: run.output || '',
+      expected: run.expected || undefined,
+      scores: run.scores.map(s => ({ name: s.name, score: s.score ?? 0 }))
+    }))
+  }))
+
+  return {
+    id: experiment.id,
+    name: experiment.name,
+    description: experiment.description || undefined,
+    sets: transformedSets,
+    createdAt: experiment.createdAt
+  }
 }
 
 export const saveSet = async (
   experimentName: string,
-  runs: Omit<Run, 'createdAt'>[]
+  runsData: RunData[]
 ) => {
+  const now = new Date()
+  const score = calculateAvgScore(runsData)
 
-  const runsWithTimestamp = runs.map((run) => ({
-    ...run,
-    createdAt: new Date().toISOString(),
-  }))
-
-  const newSet = {
-    runs: runsWithTimestamp,
-    score: calculateAvgScore(runsWithTimestamp),
-    createdAt: new Date().toISOString(),
-  }
-
-  const existingExperiment = db.query.experiments.findFirst({
-	  where: eq(experiments.name, experimentName)
+  const existingExperiment = await db.query.experiments.findFirst({
+    where: eq(experiments.name, experimentName)
   })
 
+  let experimentId: number
+
   if (existingExperiment) {
-    await db.update(experiments).set({ sets: [newSet] }).where(eq(experiments.id, existingExperiment.id))
+    experimentId = existingExperiment.id
   } else {
-	  await db.insert(experiments).values({
-		  name: experimentName,
-		  sets: [newSet],
-	  })
+    const result = await db.insert(experiments).values({
+      name: experimentName,
+      createdAt: now,
+    })
+    experimentId = Number(result.lastInsertRowid)
   }
 
+  const setResult = await db.insert(sets).values({
+    experimentId,
+    score,
+    createdAt: now,
+  })
+  const setId = Number(setResult.lastInsertRowid)
+
+  for (const runData of runsData) {
+    const runResult = await db.insert(runs).values({
+      setId,
+      input: runData.input,
+      output: runData.output,
+      expected: runData.expected,
+      createdAt: now,
+    })
+    const runId = Number(runResult.lastInsertRowid)
+
+    for (const scoreData of runData.scores) {
+      await db.insert(scores).values({
+        runId,
+        name: scoreData.name,
+        score: scoreData.score,
+        createdAt: now,
+      })
+    }
+  }
 }
 
 export const runEval = async <T = any>(
@@ -84,14 +149,14 @@ export const runEval = async <T = any>(
       let context: string | string[]
       let output: string
 
-      if (results.context) {
-        context = results.context
-        output = results.response
+      if (results && typeof results === 'object' && 'context' in results) {
+        context = (results as any).context
+        output = (results as any).response
       } else {
-        output = results
+        output = JSON.stringify(results)
       }
 
-      const scores = await Promise.all(
+      const scoresResult: RunScore[] = await Promise.all(
         scorers.map(async (scorer) => {
           const score = await scorer({
             input,
@@ -102,16 +167,16 @@ export const runEval = async <T = any>(
           })
           return {
             name: score.name,
-            score: score.score,
+            score: score.score ?? 0,
           }
         })
       )
 
-      const result = {
-        input,
+      const result: RunData = {
+        input: typeof input === 'string' ? input : JSON.stringify(input),
         output,
-        expected,
-        scores,
+        expected: expected ? JSON.stringify(expected) : undefined,
+        scores: scoresResult,
       }
 
       return result
@@ -119,8 +184,7 @@ export const runEval = async <T = any>(
   )
 
   const previousExperiment = await loadExperiment(experiment)
-  const previousScore =
-    previousExperiment?.sets[previousExperiment.sets.length - 1]?.score || 0
+  const previousScore = previousExperiment?.sets[0]?.score || 0
   const currentScore = calculateAvgScore(results)
   const scoreDiff = currentScore - previousScore
 

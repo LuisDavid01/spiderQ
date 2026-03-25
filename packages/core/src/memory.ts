@@ -53,14 +53,16 @@ export const addMessage = async (message: AIMessage[]) => {
 	const allMessages = await db.query.messages.findMany({
 		where: eq(messages.chatId, 1),
 		orderBy: [asc(messages.id)],
+		limit: 10,
 	});
-
-	if (allMessages.length > 0 && allMessages.length % 10 === 0) {
-		const summarizedmsgs = allMessages.slice(0, 10).map((m) => {
+	const lastIndex = allMessages.length - 1;
+	if (allMessages.length > 0 && allMessages[lastIndex].id % 10 === 0) {
+		const summarizedmsgs = allMessages.slice(0, lastIndex).map((m) => {
 			const parsed = JSON.parse(m.data) as MessageWithMetadata;
 			return removeMetadata(parsed);
 		});
-		const summary = await summarizeMessages(summarizedmsgs);
+		const prevSummary = await getSummary()
+		const summary = await summarizeMessages([{ role: 'assistant', content: prevSummary }, ...summarizedmsgs]);
 		await db.update(chats).set({ summary }).where(eq(chats.id, 1));
 	}
 };
@@ -93,9 +95,9 @@ export const getMessages = async () => {
 
 	const lastFive = parsedMessages.slice(-5);
 
-		if (lastFive[lastFive.length - 1]?.role === "tool") {
-			return parsedMessages;
-		}
+	if (lastFive[lastFive.length - 1]?.role === "tool") {
+		return parsedMessages;
+	}
 	return lastFive;
 };
 
@@ -112,7 +114,7 @@ export const getSummary = async () => {
 	const chat = await db.query.chats.findFirst({
 		where: eq(chats.id, 1),
 	});
-	return chat?.summary ?? "";
+	return chat!.summary ?? "";
 };
 
 export const getSessionId = async () => {
