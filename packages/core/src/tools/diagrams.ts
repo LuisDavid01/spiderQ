@@ -14,10 +14,10 @@ export const diagramToolDefinition = {
 			diagramCode: z
 				.string()
 				.describe(
-					'You will use mermaid diagram syntax to create a diagram related to the target when using special characters wrap the code with quoutes like this <anyIdentifier>["inyection point(xss)"]'
+					'You will use mermaid diagram syntax to create a diagram related to the target, wrap the content inside qoutes qoutes to prevent bad parsing'
 				),
 		})
-		.describe('use this tools when you have relevant target information to create a visual diagram using mermaid'),
+		.describe('use this tools when you have relevant target information to create a visual diagram using mermaid, if it throws syntax errors i will fix them.'),
 }
 
 type Args = z.infer<typeof diagramToolDefinition.parameters>
@@ -51,7 +51,7 @@ export async function createDiagramLocal(diagramCode: string, sessionId: string 
 
 		if (!result.success) {
 			await logErrorLocal(`[diagram] error: ${result.stderr}`)
-			const response = "No se pudo crear el archivo, por favor revisar los logs locales del usuario"
+			const response = `error creating the diagram, error: ${result.stderr} `
 			return response
 		}
 
