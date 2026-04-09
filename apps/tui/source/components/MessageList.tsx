@@ -146,19 +146,6 @@ export function MessageList({messages, rows}: MessageListProps) {
 
 	return (
 		<Box flexDirection="column">
-			{/* Header */}
-			<Box
-				paddingX={1}
-				borderStyle="single"
-				borderTop={false}
-				borderLeft={false}
-				borderRight={false}
-				borderBottom={true}
-			>
-				<Text bold>messages</Text>
-				<Box flexGrow={1} />
-				<Text dimColor>{messages.length} total</Text>
-			</Box>
 
 			{/* Scroll area */}
 			<Box flexDirection="column" height={scrollMaxHeight} overflow="hidden">

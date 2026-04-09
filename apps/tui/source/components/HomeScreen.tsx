@@ -1,7 +1,8 @@
-import { Box, Text } from "ink";
+import { Box } from "ink";
 import { useMessages } from "../hooks/useMessage";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
+import { Header } from "./Header";
 
 interface HomeScreenProps {
   columns: number;
@@ -10,13 +11,18 @@ interface HomeScreenProps {
 
 export function HomeScreen({ columns, rows }: HomeScreenProps) {
   const INPUT_HEIGHT = 3;
-  const availableRows = rows - INPUT_HEIGHT;
+  const BANNER_HEIGHT = 6;
+  const HEADER_INFO_HEIGHT = 2;
+  const reservedHeight = INPUT_HEIGHT + BANNER_HEIGHT + HEADER_INFO_HEIGHT;
+  const availableRows = rows - reservedHeight;
   const { messages, loading, error, addMessage } = useMessages();
 
   if (loading) {
     return (
       <Box width={columns} height={rows} alignItems="center" justifyContent="center">
-        <Text dimColor>Loading messages...</Text>
+        <Box>
+          <Header showBanner={true} columns={columns} />
+        </Box>
       </Box>
     );
   }
@@ -24,18 +30,19 @@ export function HomeScreen({ columns, rows }: HomeScreenProps) {
   if (error) {
     return (
       <Box width={columns} height={rows} alignItems="center" justifyContent="center">
-        <Text color="red">Error: {error.message}</Text>
+        <Box>
+          <Header showBanner={true} columns={columns} />
+        </Box>
       </Box>
     );
   }
 
   return (
     <Box width={columns} height={rows} flexDirection="column">
-      {/* MessageList ocupa todo el espacio disponible menos el input */}
+      <Header showBanner={true} columns={columns} />
       <Box flexGrow={1} flexDirection="column" height={availableRows}>
         <MessageList messages={messages} rows={availableRows} />
       </Box>
-      {/* Input siempre visible al fondo */}
       <MessageInput addMessage={addMessage} />
     </Box>
   );
