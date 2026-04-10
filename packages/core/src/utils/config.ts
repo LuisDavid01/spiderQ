@@ -34,7 +34,15 @@ export async function getConfig(): Promise<Config> {
 
 export async function setConfig(config: Config) {
 	const configFilePath = path.join(homedir(),'.spiderq','config.json')
-	await fs.writeFile(configFilePath, JSON.stringify(config))
+	await fs.writeFile(configFilePath, JSON.stringify(config, null, 2))
+}
+
+export async function updateConfig(partial: Partial<Config>): Promise<Config> {
+	const currentConfig = await getConfig()
+	const merged = { ...currentConfig, ...partial }
+	await setConfig(merged)
+	GlobalConfig = merged
+	return merged
 }
 
 export async function loadConfig(config?: Config) {

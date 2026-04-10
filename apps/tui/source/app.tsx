@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text, useInput, useStdout } from 'ink';
+import { Box, useStdout } from 'ink';
 import { NavigationProvider} from './components/NavigationProvider.js';
 import { Routing } from './routing.js';
 

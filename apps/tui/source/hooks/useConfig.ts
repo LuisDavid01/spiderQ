@@ -1,26 +1,35 @@
-import { useState, useEffect } from "react";
-import { GlobalConfig, getConfig, setConfig, loadConfig } from "@spiderq/core/config";
+import { useState, useEffect, useCallback } from "react";
+import { getConfig, updateConfig } from "@spiderq/core/config";
 import type { Config } from "@spiderq/core/types";
 
 interface UseConfigResult {
-  config: Config;
+  config: Config | null;
   loading: boolean;
   updateConfig: (newConfig: Partial<Config>) => Promise<void>;
   refreshConfig: () => Promise<void>;
 }
 
 export function useConfig(): UseConfigResult {
-  const [config, setConfigState] = useState<Config>(GlobalConfig);
+  const [config, setConfigState] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const refreshConfig = useCallback(async () => {
+    try {
+      const loadedConfig = await getConfig();
+      setConfigState(loadedConfig);
+    } catch (err) {
+      console.error("Failed to load config:", err);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       try {
-        await loadConfig();
+        const loadedConfig = await getConfig();
         if (!cancelled) {
-          setConfigState({ ...GlobalConfig });
+          setConfigState(loadedConfig);
         }
       } catch (err) {
         console.error("Failed to load config:", err);
@@ -33,16 +42,10 @@ export function useConfig(): UseConfigResult {
     return () => { cancelled = true; };
   }, []);
 
-  async function updateConfig(newConfig: Partial<Config>) {
-    const updated = { ...config, ...newConfig };
-    await setConfig(updated);
+  async function updateConfigFn(newConfig: Partial<Config>) {
+    const updated = await updateConfig(newConfig);
     setConfigState(updated);
   }
 
-  async function refreshConfig() {
-    await loadConfig();
-    setConfigState({ ...GlobalConfig });
-  }
-
-  return { config, loading, updateConfig, refreshConfig };
+  return { config, loading, updateConfig: updateConfigFn, refreshConfig };
 }

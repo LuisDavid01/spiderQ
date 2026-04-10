@@ -12,7 +12,7 @@ export function Header({ showBanner = false, columns }: HeaderProps) {
   const { navigate } = useNavigation();
   const { config } = useConfig();
 
-  const modelInfo = `${config.provider}:${config.model}`;
+  const modelInfo = config ? `${config.provider}:${config.model}` : 'loading...';
 
   return (
     <Box flexDirection="column">
@@ -33,8 +33,8 @@ export function Header({ showBanner = false, columns }: HeaderProps) {
         </Box>
         <Box flexGrow={1} />
         <Box gap={2}>
-          <Text dimColor>[<Text color="yellow">m</Text>]odels</Text>
-          <Text dimColor>[<Text color="yellow">s</Text>]ettings</Text>
+          <Text dimColor>[<Text color="yellow">alt+m</Text>]models</Text>
+          <Text dimColor>[<Text color="yellow">alt+s</Text>]settings</Text>
         </Box>
       </Box>
     </Box>

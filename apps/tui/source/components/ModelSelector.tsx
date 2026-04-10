@@ -1,4 +1,5 @@
 import { Box, Text } from "ink";
+import TextInput from "ink-text-input";
 import { useNavigation } from "./NavigationProvider";
 
 export function ModelSelector() {
@@ -8,6 +9,9 @@ export function ModelSelector() {
     providers,
     editingLocalUrl,
     localUrlInput,
+    setLocalUrlInput,
+    handleSaveLocalUrl,
+    setEditingLocalUrl,
   } = useNavigation();
 
   const currentProvider = providers[selectedProviderIndex];
@@ -92,7 +96,15 @@ export function ModelSelector() {
                       <Text color="yellow">{'>'}</Text>
                       <Text> </Text>
                       {editingLocalUrl ? (
-                        <Text color="cyan">{localUrlInput}_</Text>
+                        <Box flexGrow={1}>
+                          <TextInput
+                            value={localUrlInput}
+                            onChange={setLocalUrlInput}
+                            onSubmit={handleSaveLocalUrl}
+                            placeholder="http://localhost:11434/v1"
+                            focus={true}
+                          />
+                        </Box>
                       ) : (
                         <Text color="white">{localUrlInput || 'not set (press Enter to edit)'}</Text>
                       )}
@@ -107,7 +119,7 @@ export function ModelSelector() {
 
       <Box paddingY={1}>
         {editingLocalUrl ? (
-          <Text dimColor>Type URL | Enter save | Esc cancel</Text>
+          <Text dimColor>Enter save | Esc cancel</Text>
         ) : (
           <Text dimColor>← → change provider | ↑ ↓ select model | Enter confirm | Esc back</Text>
         )}

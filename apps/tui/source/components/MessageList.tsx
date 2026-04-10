@@ -91,18 +91,13 @@ function MessageItem({message}: {message: AIMessage}) {
 
 interface MessageListProps {
 	messages: AIMessage[];
-	rows: number;
 }
 
-export function MessageList({messages, rows}: MessageListProps) {
+export function MessageList({messages}: MessageListProps) {
 	const {stdout} = useStdout();
 	const scrollRef = useRef<ScrollViewRef>(null);
 	const [contentHeight, setContentHeight] = useState(0);
 	const [viewportHeight, setViewportHeight] = useState(0);
-	const HEADER_HEIGHT = 1;
-	const FOOTER_HEIGHT = 1;
-	const scrollMaxHeight = rows - HEADER_HEIGHT - FOOTER_HEIGHT;
-	const lastMessage = messages[messages.length - 1];
 
 	const maxScrollOffset = Math.max(0, contentHeight - viewportHeight);
 
@@ -145,10 +140,10 @@ export function MessageList({messages, rows}: MessageListProps) {
 	});
 
 	return (
-		<Box flexDirection="column">
+		<Box flexDirection="column" flexGrow={1}>
 
 			{/* Scroll area */}
-			<Box flexDirection="column" height={scrollMaxHeight} overflow="hidden">
+			<Box flexDirection="column" flexGrow={1} overflow="hidden">
 				<ScrollView
 					ref={scrollRef}
 					onContentHeightChange={setContentHeight}
@@ -168,19 +163,7 @@ export function MessageList({messages, rows}: MessageListProps) {
 				</ScrollView>
 			</Box>
 
-			{/* Footer */}
-			<Box
-				paddingX={1}
-				borderStyle="single"
-				borderTop={true}
-				borderBottom={false}
-				borderLeft={false}
-				borderRight={false}
-				gap={2}
-			>
-				<Text dimColor>↑↓ scroll</Text>
-				<Text dimColor>pgup/pgdn jump</Text>
-			</Box>
+
 		</Box>
 	);
 }

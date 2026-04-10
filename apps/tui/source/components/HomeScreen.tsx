@@ -41,7 +41,7 @@ export function HomeScreen({ columns, rows }: HomeScreenProps) {
     <Box width={columns} height={rows} flexDirection="column">
       <Header showBanner={true} columns={columns} />
       <Box flexGrow={1} flexDirection="column" height={availableRows}>
-        <MessageList messages={messages} rows={availableRows} />
+        <MessageList messages={messages} />
       </Box>
       <MessageInput addMessage={addMessage} />
     </Box>

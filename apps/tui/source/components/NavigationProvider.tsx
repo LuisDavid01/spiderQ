@@ -1,6 +1,7 @@
 import { useInput } from 'ink';
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import { setConfig, GlobalConfig } from "@spiderq/core/config";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { getConfig, updateConfig } from "@spiderq/core/config";
+import type { Config } from "@spiderq/core/types";
 
 type Screen = 'home' | 'models' | 'settings';
 
@@ -24,22 +25,59 @@ type NavigationContext = {
 	setEditingLocalUrl: (editing: boolean) => void;
 	localUrlInput: string;
 	setLocalUrlInput: (url: string) => void;
+	refreshConfig: () => Promise<void>;
+	handleSaveLocalUrl: (url: string) => void;
 };
 
 const NavigationContext = createContext<NavigationContext | null>(null);
+
+function getProviderIndex(provider: string): number {
+	const idx = PROVIDERS.findIndex(p => p.id === provider);
+	return idx >= 0 ? idx : 0;
+}
 
 export function NavigationProvider({children}: {children: ReactNode}) {
 	const [screen, setScreen] = useState<Screen>('home');
 	const [selectedProviderIndex, setSelectedProviderIndex] = useState(0);
 	const [selectedModelIndex, setSelectedModelIndex] = useState<number | null>(0);
 	const [editingLocalUrl, setEditingLocalUrl] = useState(false);
-	const [localUrlInput, setLocalUrlInput] = useState(GlobalConfig.localUrl || '');
+	const [localUrlInput, setLocalUrlInput] = useState('');
+	const [currentConfig, setCurrentConfig] = useState<Config | null>(null);
+
+	const refreshConfig = useCallback(async () => {
+		const config = await getConfig();
+		setCurrentConfig(config);
+		setSelectedProviderIndex(getProviderIndex(config.provider));
+		setLocalUrlInput(config.localUrl || '');
+		const provider = PROVIDERS[getProviderIndex(config.provider)];
+		if (provider.models.length > 0) {
+			const modelIdx = provider.models.indexOf(config.model);
+			setSelectedModelIndex(modelIdx >= 0 ? modelIdx : 0);
+		} else {
+			setSelectedModelIndex(null);
+		}
+	}, []);
+
+	const handleSaveModel = useCallback(async (providerId: Provider, model: string) => {
+		await updateConfig({ provider: providerId, model });
+		setScreen('home');
+	}, []);
+
+	const handleSaveLocalUrl = useCallback(async (url: string) => {
+		await updateConfig({ provider: 'local', localUrl: url });
+		setScreen('home');
+		setEditingLocalUrl(false);
+	}, []);
+
+	useEffect(() => {
+		if (screen === 'models') {
+			refreshConfig();
+		}
+	}, [screen, refreshConfig]);
 
 	useInput((input, key) => {
 		if (key.meta && input === 'h') {
 			setScreen('home');
-			setSelectedProviderIndex(0);
-			setSelectedModelIndex(null);
 		}
 		if (key.meta && input === 'm') {
 			setScreen('models');
@@ -47,29 +85,15 @@ export function NavigationProvider({children}: {children: ReactNode}) {
 		}
 		if (key.meta && input === 's') setScreen('settings');
 
-		if (screen === 'models' && editingLocalUrl) {
+		// Cuando se está editando la URL local, no procesar teclas globales para evitar interferencia con TextInput
+		if (editingLocalUrl) {
 			if (key.escape) {
 				setEditingLocalUrl(false);
-				setLocalUrlInput(GlobalConfig.localUrl || '');
+				setLocalUrlInput(currentConfig?.localUrl || '');
 				return;
 			}
-
-			if (key.return) {
-				setConfig({...GlobalConfig, provider: 'local', localUrl: localUrlInput});
-				setScreen('home');
-				setEditingLocalUrl(false);
-				return;
-			}
-
-			if (key.backspace) {
-				setLocalUrlInput((prev: string) => prev.slice(0, -1));
-				return;
-			}
-
-			if (input) {
-				setLocalUrlInput((prev: string) => prev + input);
-				return;
-			}
+			// No procesar meta keys mientras se edita la URL
+			return;
 		}
 
 		if (screen === 'models' && !editingLocalUrl) {
@@ -117,10 +141,7 @@ export function NavigationProvider({children}: {children: ReactNode}) {
 					setSelectedModelIndex(0);
 				} else if (selectedModelIndex !== null) {
 					const model = provider.models[selectedModelIndex];
-					setConfig({...GlobalConfig, provider: provider.id, model});
-					setScreen('home');
-					setSelectedProviderIndex(0);
-					setSelectedModelIndex(null);
+					handleSaveModel(provider.id, model);
 				}
 			}
 		}
@@ -140,6 +161,8 @@ export function NavigationProvider({children}: {children: ReactNode}) {
 				setEditingLocalUrl,
 				localUrlInput,
 				setLocalUrlInput,
+				refreshConfig,
+				handleSaveLocalUrl,
 			}}
 		>
 			{children}
